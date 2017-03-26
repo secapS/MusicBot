@@ -68,7 +68,7 @@ class MusicBot(discord.Client):
 
         self.blacklist = set(load_file(self.config.blacklist_file))
         self.autoplaylist = load_file(self.config.auto_playlist_file)
-		self.song_list = self.autoplaylist[:]
+        self.song_list = self.autoplaylist[:]
 
         self.aiolocks = defaultdict(asyncio.Lock)
         self.downloader = downloader.Downloader(download_folder='audio_cache')
@@ -2046,7 +2046,7 @@ class MusicBot(discord.Client):
         Usage:
             {command_prefix}autoplaylist
 
-		Enable or disable the autoplaylist
+        Enable or disable the autoplaylist
         """
         self.config.auto_playlist = not self.config.auto_playlist
         await self.safe_send_message(channel, "The autoplaylist is now " + ['disabled', 'enabled'][self.config.auto_playlist])

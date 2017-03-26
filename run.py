@@ -251,7 +251,7 @@ def req_ensure_py3():
                 log.info("\nPython 3 found.  Re-launching bot using: %s run.py\n", pycom)
                 pyexec(pycom, 'run.py')
 
-        log.critical("Could not find python 3.5.  Please run the bot using python 3.5")
+        log.critical("Could not find python 3.5. Please run the bot using python 3.5")
         bugger_off()
 
 
