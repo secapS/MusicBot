@@ -1,17 +1,17 @@
-FROM alpine:3.4
+FROM alpine:3.5
 
 # Install Dependencies
-RUN apk update \
- && apk add python3-dev ca-certificates gcc make linux-headers musl-dev ffmpeg libffi-dev
+RUN apk add --update && apk add python3 python3-dev git ffmpeg opus libffi-dev libsodium-dev musl-dev gcc make && cd /srv/ && pip3 install --upgrade pip
 
 # Add project source
-ADD . /usr/src/MusicBot
-WORKDIR /usr/src/MusicBot
+WORKDIR /usr/src/musicbot
+COPY . /usr/src/musicbot
+
 
 # Create volume for mapping the config
-VOLUME /usr/src/MusicBot/config
+VOLUME /usr/src/musicbot/config
 
 # Install pip dependencies
 RUN pip3 install -r requirements.txt
 
-CMD python3.5 run.py
+CMD ["python3", "run.py"]
