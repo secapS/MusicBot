@@ -292,7 +292,7 @@ class ConfigDefaults:
     max_volume = 100
 
     debug_mode = False
-    timeout = 10
+    timeout = 10.0
     options_file = 'config/options.ini'
     blacklist_file = 'config/blacklist.txt'
     auto_playlist_file = 'config/autoplaylist.txt' # this will change when I add playlists
