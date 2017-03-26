@@ -9,6 +9,7 @@ import logging
 import asyncio
 import pathlib
 import traceback
+import re
 import math
 
 import aiohttp
@@ -1270,6 +1271,13 @@ class MusicBot(discord.Client):
         if leftover_args:
             song_url = ' '.join([song_url, *leftover_args])
 
+            linksRegex = '((http(s)*:[/][/]|www.)([a-z]|[A-Z]|[0-9]|[/.]|[~])*)'
+            pattern = re.compile(linksRegex)
+            matchUrl = pattern.match(song_url)
+
+        if matchUrl is None:
+            song_url = song_url.replace('/', '%2F')
+
         try:
             info = await self.downloader.extract_info(player.playlist.loop, song_url, download=False, process=False)
         except Exception as e:
@@ -1758,7 +1766,7 @@ class MusicBot(discord.Client):
                 'There are no songs queued! Queue something with {}play.'.format(self.config.command_prefix),
                 delete_after=30
             )
-        
+
     async def cmd_addnp(self, player, channel, server, message):
         """
         Usage:
@@ -1958,7 +1966,7 @@ class MusicBot(discord.Client):
         """
         Usage:
             {command_prefix}remove [number]
-	    
+
         Removes a song from the queue at the given position, where the position is a number from {command_prefix}queue.
         """
 
@@ -2037,15 +2045,15 @@ class MusicBot(discord.Client):
         """
         Usage:
             {command_prefix}autoplaylist
-			
+
 		Enable or disable the autoplaylist
         """
         self.config.auto_playlist = not self.config.auto_playlist
         await self.safe_send_message(channel, "The autoplaylist is now " + ['disabled', 'enabled'][self.config.auto_playlist])
         if not player.playlist.entries and not player.current_entry and self.config.auto_playlist: #if nothing is queued, start a song
-            song_url = random.choice(self.autoplaylist) 
-            await player.playlist.add_entry(song_url, channel=None, author=None)							
-	
+            song_url = random.choice(self.autoplaylist)
+            await player.playlist.add_entry(song_url, channel=None, author=None)
+
     async def cmd_queue(self, channel, player):
         """
         Usage:
