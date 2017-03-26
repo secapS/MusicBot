@@ -2013,6 +2013,19 @@ class MusicBot(discord.Client):
                 raise exceptions.CommandError(
                     'Unreasonable volume provided: {}%. Provide a value between 1 and {}.'.format(new_volume, max_volume), expire_in=20)
 
+    async def cmd_autoplaylist(self, channel, author, player, voice_channel):
+        """
+        Usage:
+            {command_prefix}autoplaylist
+			
+		Enable or disable the autoplaylist
+        """
+        self.config.auto_playlist = not self.config.auto_playlist
+        await self.safe_send_message(channel, "The autoplaylist is now " + ['disabled', 'enabled'][self.config.auto_playlist])
+        if not player.playlist.entries and not player.current_entry and self.config.auto_playlist: #if nothing is queued, start a song
+            song_url = random.choice(self.autoplaylist) 
+            await player.playlist.add_entry(song_url, channel=None, author=None)							
+	
     async def cmd_queue(self, channel, player):
         """
         Usage:
