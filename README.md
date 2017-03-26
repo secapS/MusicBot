@@ -1,4 +1,5 @@
 # MusicBot: The music bot for Discord.
+[![CircleCI](https://circleci.com/gh/DiscordMusicBot/MusicBot.svg?style=svg)](https://circleci.com/gh/DiscordMusicBot/MusicBot)
 
 MusicBot is a Discord music bot written in [Python](https://www.python.org "Python homepage").
 It plays requested songs and if the queue becomes empty it will play through a list of existing songs.
