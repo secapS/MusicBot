@@ -1,11 +1,21 @@
 machine:
-  python:
-    version: 3.5.2
+  services:
+    - docker
 
 dependencies:
-  pre:
-    - pip install --upgrade pip
+  override:
+    - docker info
+    - docker build --rm=false -t discordmusicbot/musicbot .
 
 test:
   override:
     - "true"
+    #- docker run -d discordmusicbot/musicbot; sleep 10
+    #- docker exec
+
+deployment:
+  hub:
+    branch: master
+    commands:
+      - docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - docker push discordmusicbot/musicbot
