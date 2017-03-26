@@ -67,6 +67,7 @@ class MusicBot(discord.Client):
 
         self.blacklist = set(load_file(self.config.blacklist_file))
         self.autoplaylist = load_file(self.config.auto_playlist_file)
+		self.song_list = self.autoplaylist[:]
 
         self.aiolocks = defaultdict(asyncio.Lock)
         self.downloader = downloader.Downloader(download_folder='audio_cache')
@@ -629,7 +630,11 @@ class MusicBot(discord.Client):
         if not player.playlist.entries and not player.current_entry and self.config.auto_playlist:
             while self.autoplaylist:
                 random.shuffle(self.autoplaylist)
-                song_url = random.choice(self.autoplaylist)
+                if (len(self.song_list) == 0):
+                    print('All songs have been played. Restarting auto playlist...')
+                    self.song_list = self.autoplaylist[:]
+                song_url = random.choice(self.song_list)
+                self.song_list.remove(song_url)
 
                 info = {}
 
