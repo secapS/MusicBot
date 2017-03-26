@@ -6,6 +6,7 @@ import shutil
 import random
 import inspect
 import logging
+import inspect
 import asyncio
 import pathlib
 import traceback
@@ -24,7 +25,6 @@ from collections import defaultdict
 
 from discord.enums import ChannelType
 from discord.ext.commands.bot import _get_variable
-from discord.http import _func_
 
 from . import exceptions
 from . import downloader
@@ -46,6 +46,9 @@ load_opus_lib()
 
 log = logging.getLogger(__name__)
 
+def _func_():
+    # emulate __func__ from C++
+    return inspect.currentframe().f_back.f_code.co_name
 
 class MusicBot(discord.Client):
     def __init__(self, config_file=None, perms_file=None):

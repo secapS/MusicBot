@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import logging
+import inspect
 import asyncio
 import audioop
 import subprocess
@@ -12,8 +13,6 @@ from threading import Thread
 from collections import deque
 from shutil import get_terminal_size
 from websockets.exceptions import InvalidState
-
-from discord.http import _func_
 
 from .utils import avg
 from .lib.event_emitter import EventEmitter
@@ -302,7 +301,7 @@ class MusicPlayer(EventEmitter, Serializable):
         return player
 
     async def reload_voice(self, voice_client):
-        async with self.bot.aiolocks[_func_() + ':' + voice_client.channel.server.id]:
+        async with self.bot.aiolocks[inspect.currentframe().f_back.f_code.co_name + ':' + voice_client.channel.server.id]:
             self.voice_client = voice_client
             if self._current_player:
                 self._current_player.player = voice_client.play_audio
