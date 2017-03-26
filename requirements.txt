@@ -1,5 +1,4 @@
-discord.py[voice] ~= 0.16.7
 pip
-youtube_dl
-colorlog
-cffi --only-binary all; sys_platform == 'win32'
+discord.py[voice] ~= 0.16.7
+youtube_dl == 2017.03.24
+colorlog ~= 2.10.0
