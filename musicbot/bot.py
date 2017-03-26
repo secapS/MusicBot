@@ -1288,7 +1288,7 @@ class MusicBot(discord.Client):
 
         if not info:
             raise exceptions.CommandError(
-                "That video cannot be played.  Try using the {}stream command.".format(self.config.command_prefix),
+                "That video cannot be played. Try using the {}stream command.".format(self.config.command_prefix),
                 expire_in=30
             )
 
