@@ -1119,9 +1119,9 @@ class MusicBot(discord.Client):
         log.info("  Auto-Pause: " + ['Disabled', 'Enabled'][self.config.auto_pause])
         log.info("  Delete Messages: " + ['Disabled', 'Enabled'][self.config.delete_messages])
         if self.config.delete_messages:
-            log.info("    Delete Invoking: " + ['Disabled', 'Enabled'][self.config.delete_invoking])
+            log.info("  Delete Invoking: " + ['Disabled', 'Enabled'][self.config.delete_invoking])
         log.info("  Debug Mode: " + ['Disabled', 'Enabled'][self.config.debug_mode])
-        log.info("  Downloaded songs will be " + ['deleted', 'saved'][self.config.save_videos])
+        log.info("  Downloaded songs will be: " + ['deleted', 'saved'][self.config.save_videos])
         print(flush=True)
 
         # maybe option to leave the ownerid blank and generate a random command for the owner to use
