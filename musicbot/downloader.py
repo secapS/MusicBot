@@ -10,6 +10,9 @@ log = logging.getLogger(__name__)
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
+    'extractaudio': True,
+    'audioformat': 'best',
+    'audioquality': '0',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
     'restrictfilenames': True,
     'noplaylist': True,
