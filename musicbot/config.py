@@ -57,16 +57,16 @@ class Config:
         self.delete_messages  = config.getboolean('MusicBot', 'DeleteMessages', fallback=ConfigDefaults.delete_messages)
         self.delete_invoking = config.getboolean('MusicBot', 'DeleteInvoking', fallback=ConfigDefaults.delete_invoking)
         self.persistent_queue = config.getboolean('MusicBot', 'PersistentQueue', fallback=ConfigDefaults.persistent_queue)
-        self.debug_mode = config.get('MusicBot', 'DebugMode', fallback=ConfigDefaults.debug_mode)
+        self.debug_mode = config.getboolean('MusicBot', 'DebugMode', fallback=ConfigDefaults.debug_mode)
         self.debug_level = config.get('MusicBot', 'DebugLevel', fallback=ConfigDefaults.debug_level)
         self.debug_level_str = self.debug_level
         self.max_volume = config.getint('MusicBot', 'MaxVolume', fallback=ConfigDefaults.max_volume)
+        self.timeout = config.getfloat('MusicBot', 'TimeOut', fallback=ConfigDefaults.timeout)
 
         self.blacklist_file = config.get('Files', 'BlacklistFile', fallback=ConfigDefaults.blacklist_file)
         self.auto_playlist_file = config.get('Files', 'AutoPlaylistFile', fallback=ConfigDefaults.auto_playlist_file)
         self.auto_playlist_removed_file = None
 
-        self.timeout = config.get('MusicBot', 'TimeOut', fallback=ConfigDefaults.timeout)
         self.run_checks()
 
         self.find_autoplaylist()
