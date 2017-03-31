@@ -295,8 +295,44 @@ class Playlist(EventEmitter, Serializable):
         if self.peek() is entry:
             entry.get_ready_future()
 
-    def remove_entry(self, index):
-        del self.entries[index]
+ def promote_position(self, position):
+        rotDist = -1 * (position - 1)
+        self.entries.rotate(rotDist)
+        entry = self.entries.popleft()
+        self.entries.rotate(-1 * rotDist)
+        self.entries.appendleft(entry)
+        self.emit('entry-added', playlist=self, entry=entry)
+        entry.get_ready_future()
+
+        return entry
+
+    def promote_last(self):
+        entry = self.entries.pop()
+        self.entries.appendleft(entry)
+        self.emit('entry-added', playlist=self, entry=entry)
+        entry.get_ready_future()
+
+        return entry
+
+    def remove_position(self, position):
+        rotDist = -1 * (position - 1)
+        self.entries.rotate(rotDist)
+        entry = self.entries.popleft()
+        self.emit('entry-removed', playlist=self, entry=entry)
+        self.entries.rotate(-1 * rotDist)
+
+        return entry
+
+    def remove_first(self):
+        entry = self.entries.popleft()
+        self.emit('entry-removed', playlist=self, entry=entry)
+        entryNext = None
+        entryNext = self.peek()
+
+        if entryNext:
+            entryNext.get_ready_future()
+
+        return entry
 
     async def get_next_entry(self, predownload_next=True):
         """
@@ -356,4 +392,3 @@ class Playlist(EventEmitter, Serializable):
 
         # TODO: create a function to init downloading (since we don't do it here)?
         return pl
-
