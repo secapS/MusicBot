@@ -95,6 +95,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
                  url,
                  title,
                  duration=0,
+                 start_seconds=0,
                  expected_filename=None,
                  filename_thumbnail=None,
                  **meta):
@@ -104,6 +105,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
         self.url = url
         self.title = title
         self.duration = duration
+        self.start_seconds = start_seconds
         self.expected_filename = expected_filename
         self.filename_thumbnail = filename_thumbnail
         self.meta = meta
@@ -115,6 +117,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
             'url': self.url,
             'title': self.title,
             'duration': self.duration,
+            'start_seconds': self.start_seconds,
             'downloaded': self.is_downloaded,
             'expected_filename': self.expected_filename,
             'filename': self.filename,
@@ -139,11 +142,13 @@ class URLPlaylistEntry(BasePlaylistEntry):
             url = data['url']
             title = data['title']
             duration = data['duration']
+            start_seconds = data["start_seconds"]
             downloaded = data['downloaded']
             filename = data['filename'] if downloaded else None
+            expected_filename = data['expected_filename'] \
+                if downloaded else None
             filename_thumbnail = data['filename_thumbnail'] \
                 if downloaded else None
-            expected_filename = data['expected_filename']
             meta = {}
 
             # TODO: Better [name] fallbacks
@@ -155,7 +160,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 meta['author'] = meta['channel'].server.get_member(
                     data['meta']['author']['id'])
 
-            entry = cls(playlist, url, title, duration,
+            entry = cls(playlist, url, title, duration, start_seconds,
                         expected_filename, filename_thumbnail, **meta)
             entry.filename = filename
 
@@ -180,7 +185,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
 
             # the generic extractor requires special handling
             if extractor == 'generic':
-                #  LOG.debug("Handling generic")
+                LOG.debug("Handling generic")
                 # remove thumbnail images from list
                 img_pattern = re.compile(
                     r'(\.(jpg|jpeg|png|gif|bmp))$', flags=re.IGNORECASE)
@@ -204,20 +209,18 @@ class URLPlaylistEntry(BasePlaylistEntry):
                             flistdir.index(expected_fname_noex)]
                     )
 
-                    #  LOG.debug("Resolved %s to %s" % (self.expected_filename, \
-                    # lfile))
+                    LOG.debug("Resolved %s to %s", self.expected_filename, lfile)
                     lsize = os.path.getsize(lfile)
-                    #  LOG.debug("Remote size: %s Local size: %s" % (rsize, lsize))
+                    LOG.debug("Remote size: %s Local size: %s", rsize, lsize)
 
                     if lsize != rsize:
                         await self._really_download(hash=True)
                     else:
-                        #  LOG.debug("[Download] Cached:", self.url)
+                        LOG.debug("[Download] Cached: %s", self.url)
                         self.filename = lfile
 
                 else:
-                    # LOG.debug("File not found in cache (%s)" % \
-                    # expected_fname_noex)
+                    LOG.debug("File not found in cache (%s)", expected_fname_noex)
                     await self._really_download(hash=True)
 
             else:
@@ -231,7 +234,6 @@ class URLPlaylistEntry(BasePlaylistEntry):
 
                 # idk wtf this is but its probably legacy code
                 # or i have youtube to blame for changing shit again
-
                 if expected_fname_base in ldir:
                     self.filename = os.path.join(
                         self.download_folder, expected_fname_base)
@@ -243,10 +245,10 @@ class URLPlaylistEntry(BasePlaylistEntry):
                     self.filename = os.path.join(
                         self.download_folder,
                         ldir[flistdir.index(expected_fname_noex)])
-                    LOG.debug("Expected %s, got %s" % (
-                        self.expected_filename.rsplit('.', 1)[-1],
-                        self.filename.rsplit('.', 1)[-1]
-                    ))
+                    LOG.debug("Expected %s, got %s",
+                              self.expected_filename.rsplit('.', 1)[-1],
+                              self.filename.rsplit('.', 1)[-1]
+                             )
                 else:
                     await self._really_download()
 
@@ -300,6 +302,13 @@ class URLPlaylistEntry(BasePlaylistEntry):
             else:
                 # Move the temporary file to it's final location.
                 os.rename(unhashed_fname, self.filename)
+
+    def set_start(self, sec):
+        if sec > self.duration or sec < 0:
+            return False
+
+        self.start_seconds = sec
+        return True
 
 
 class StreamPlaylistEntry(BasePlaylistEntry):

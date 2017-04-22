@@ -36,6 +36,18 @@ def write_file(filename, contents):
             file_.write(str(item))
             file_.write('\n')
 
+def format_time_ffmpeg(seconds):
+    """ TODO """
+    total_msec = seconds * 1000
+    total_seconds = seconds
+    total_minutes = seconds / 60
+    total_hours = seconds / 3600
+    msec = int(total_msec % 1000)
+    sec = int(total_seconds % 60 - (msec / 3600000))
+    mins = int(total_minutes % 60 - (sec / 3600) - (msec / 3600000))
+    hours = int(total_hours - (mins / 60) - (sec / 3600) - (msec / 3600000))
+
+    return "{:02d}:{:02d}:{:02d}".format(hours, mins, sec)
 
 def paginate(content, *, length=DISCORD_MSG_CHAR_LIMIT, reserve=0):
     """

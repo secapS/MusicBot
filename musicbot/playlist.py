@@ -111,11 +111,74 @@ class Playlist(EventEmitter, Serializable):
             song_url,
             info.get('title', 'Untitled'),
             info.get('duration', 0) or 0,
+            info.get('start_seconds', 0) or 0,
             self.downloader.ytdl.prepare_filename(info),
             **meta
         )
         self._add_entry(entry)
         return entry, len(self.entries)
+
+    async def remove_entry(self, index):
+        """
+            Removes a song from the playlist.
+            :param index: The index of the song to remove from the queue.
+        """
+
+        removed_entries = deque()
+
+        if index == 1:
+            return self.entries.popleft()
+
+        for i in range(1, index):
+            removed_entries.appendleft(self.entries.popleft())
+        removed_entry = self.entries.popleft()
+
+        for entry in removed_entries:
+            self.entries.appendleft(entry)
+
+        return removed_entry
+
+    async def promote_entry(self, position):
+        """
+            Changes a songs position in the playlist.
+            :param index: The index of the song to remove from the queue.
+        """
+        if not position:
+            entry = self.entries.pop()
+            self.entries.appendleft(entry)
+            self.emit('entry-added', playlist=self, entry=entry)
+            entry.get_ready_future()
+        else:
+            rot_dist = -1 * (position - 1)
+            self.entries.rotate(rot_dist)
+            entry = self.entries.popleft()
+            self.entries.rotate(-1 * rot_dist)
+            self.entries.appendleft(entry)
+            self.emit('entry-added', playlist=self, entry=entry)
+            entry.get_ready_future()
+        return entry
+
+    def remove_position(self, position):
+        """ TODO """
+        rot_dist = -1 * (position - 1)
+        self.entries.rotate(rot_dist)
+        entry = self.entries.popleft()
+        self.emit('entry-removed', playlist=self, entry=entry)
+        self.entries.rotate(-1 * rot_dist)
+
+        return entry
+
+    def remove_first(self):
+        """ TODO """
+        entry = self.entries.popleft()
+        self.emit('entry-removed', playlist=self, entry=entry)
+        entry_next = None
+        entry_next = self.peek()
+
+        if entry_next:
+            entry_next.get_ready_future()
+
+        return entry
 
     async def add_stream_entry(self, song_url, info=None, **meta):
         """ TODO """
@@ -210,6 +273,7 @@ class Playlist(EventEmitter, Serializable):
                         item[url_field],
                         item.get('title', 'Untitled'),
                         item.get('duration', 0) or 0,
+                        info.get('start_seconds', 0) or 0,
                         self.downloader.ytdl.prepare_filename(item),
                         **meta
                     )
@@ -331,49 +395,6 @@ class Playlist(EventEmitter, Serializable):
 
         if self.peek() is entry:
             entry.get_ready_future()
-
-    def promote_position(self, position):
-        """ TODO """
-        rot_dist = -1 * (position - 1)
-        self.entries.rotate(rot_dist)
-        entry = self.entries.popleft()
-        self.entries.rotate(-1 * rot_dist)
-        self.entries.appendleft(entry)
-        self.emit('entry-added', playlist=self, entry=entry)
-        entry.get_ready_future()
-
-        return entry
-
-    def promote_last(self):
-        """ TODO """
-        entry = self.entries.pop()
-        self.entries.appendleft(entry)
-        self.emit('entry-added', playlist=self, entry=entry)
-        entry.get_ready_future()
-
-        return entry
-
-    def remove_position(self, position):
-        """ TODO """
-        rot_dist = -1 * (position - 1)
-        self.entries.rotate(rot_dist)
-        entry = self.entries.popleft()
-        self.emit('entry-removed', playlist=self, entry=entry)
-        self.entries.rotate(-1 * rot_dist)
-
-        return entry
-
-    def remove_first(self):
-        """ TODO """
-        entry = self.entries.popleft()
-        self.emit('entry-removed', playlist=self, entry=entry)
-        entry_next = None
-        entry_next = self.peek()
-
-        if entry_next:
-            entry_next.get_ready_future()
-
-        return entry
 
     async def get_next_entry(self, predownload_next=True):
         """
