@@ -2509,6 +2509,7 @@ class MusicBot(discord.Client):
             {command_prefix}fwd <timestamp>
 
         Forward <timestamp> into the current entry
+        E.g. 01:10
         """
 
         parts = timestamp.split(":")
@@ -2543,6 +2544,7 @@ class MusicBot(discord.Client):
             {command_prefix}rwd <timestamp>
 
         Rewind <timestamp> into the current entry
+        E.g. 01:10
         """
 
         parts = timestamp.split(":")
