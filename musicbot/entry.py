@@ -1,4 +1,5 @@
 import os
+import re
 import asyncio
 import logging
 import traceback
@@ -8,10 +9,11 @@ from .constructs import Serializable
 from .exceptions import ExtractionError
 from .utils import get_header, md5sum
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 class EntryTypes(Enum):
+    """ TODO """
     URL = 1
     STEAM = 2
     FILE = 3
@@ -21,13 +23,17 @@ class EntryTypes(Enum):
 
 
 class BasePlaylistEntry(Serializable):
+    """ TODO """
+
     def __init__(self):
         self.filename = None
+        self.filename_thumbnail = None
         self._is_downloading = False
         self._waiting_futures = []
 
     @property
     def is_downloaded(self):
+        """ TODO """
         if self._is_downloading:
             return False
 
@@ -38,24 +44,28 @@ class BasePlaylistEntry(Serializable):
 
     def get_ready_future(self):
         """
-        Returns a future that will fire when the song is ready to be played. The future will either fire with the result (being the entry) or an exception
-        as to why the song download failed.
+        Returns a future that will fire when the song is ready to be played.
+        The future will either fire with the result (being the entry)
+         or an exception as to why the song download failed.
         """
         future = asyncio.Future()
         if self.is_downloaded:
-            # In the event that we're downloaded, we're already ready for playback.
+            # In the event that we're downloaded, we're already ready for
+            # playback.
             future.set_result(self)
 
         else:
-            # If we request a ready future, let's ensure that it'll actually resolve at one point.
+            # If we request a ready future, let's ensure that it'll actually
+            # resolve at one point.
             asyncio.ensure_future(self._download())
             self._waiting_futures.append(future)
 
         return future
 
-    def _for_each_future(self, cb):
+    def _for_each_future(self, callback):
         """
-            Calls `cb` for each future that is not cancelled. Absorbs and logs any errors that may have occurred.
+            Calls `callback` for each future that is not cancelled. \
+            Absorbs and logs any errors that may have occurred.
         """
         futures = self._waiting_futures
         self._waiting_futures = []
@@ -65,7 +75,7 @@ class BasePlaylistEntry(Serializable):
                 continue
 
             try:
-                cb(future)
+                callback(future)
 
             except:
                 traceback.print_exc()
@@ -78,7 +88,16 @@ class BasePlaylistEntry(Serializable):
 
 
 class URLPlaylistEntry(BasePlaylistEntry):
-    def __init__(self, playlist, url, title, duration=0, expected_filename=None, **meta):
+    """ TODO """
+
+    def __init__(self,
+                 playlist,
+                 url,
+                 title,
+                 duration=0,
+                 expected_filename=None,
+                 filename_thumbnail=None,
+                 **meta):
         super().__init__()
 
         self.playlist = playlist
@@ -86,8 +105,8 @@ class URLPlaylistEntry(BasePlaylistEntry):
         self.title = title
         self.duration = duration
         self.expected_filename = expected_filename
+        self.filename_thumbnail = filename_thumbnail
         self.meta = meta
-
         self.download_folder = self.playlist.downloader.download_folder
 
     def __json__(self):
@@ -99,7 +118,9 @@ class URLPlaylistEntry(BasePlaylistEntry):
             'downloaded': self.is_downloaded,
             'expected_filename': self.expected_filename,
             'filename': self.filename,
-            'full_filename': os.path.abspath(self.filename) if self.filename else self.filename,
+            'full_filename': os.path.abspath(self.filename)
+                             if self.filename else self.filename,
+            'filename_thumbnail': self.filename_thumbnail,
             'meta': {
                 name: {
                     'type': obj.__class__.__name__,
@@ -120,22 +141,27 @@ class URLPlaylistEntry(BasePlaylistEntry):
             duration = data['duration']
             downloaded = data['downloaded']
             filename = data['filename'] if downloaded else None
+            filename_thumbnail = data['filename_thumbnail'] \
+                if downloaded else None
             expected_filename = data['expected_filename']
             meta = {}
 
             # TODO: Better [name] fallbacks
             if 'channel' in data['meta']:
-                meta['channel'] = playlist.bot.get_channel(data['meta']['channel']['id'])
+                meta['channel'] = playlist.bot.get_channel(
+                    data['meta']['channel']['id'])
 
             if 'author' in data['meta']:
-                meta['author'] = meta['channel'].server.get_member(data['meta']['author']['id'])
+                meta['author'] = meta['channel'].server.get_member(
+                    data['meta']['author']['id'])
 
-            entry = cls(playlist, url, title, duration, expected_filename, **meta)
+            entry = cls(playlist, url, title, duration,
+                        expected_filename, filename_thumbnail, **meta)
             entry.filename = filename
 
             return entry
-        except Exception as e:
-            log.error("Could not load {}".format(cls.__name__), exc_info=e)
+        except Exception as error:
+            LOG.error("Could not load %s", cls.__name__, exc_info=error)
 
     # noinspection PyTypeChecker
     async def _download(self):
@@ -148,41 +174,57 @@ class URLPlaylistEntry(BasePlaylistEntry):
             if not os.path.exists(self.download_folder):
                 os.makedirs(self.download_folder)
 
-            # self.expected_filename: audio_cache\youtube-9R8aSKwTEMg-NOMA_-_Brain_Power.m4a
+            # self.expected_filename:
+            # audio_cache\youtube-9R8aSKwTEMg-NOMA_-_Brain_Power.m4a
             extractor = os.path.basename(self.expected_filename).split('-')[0]
 
             # the generic extractor requires special handling
             if extractor == 'generic':
-                flistdir = [f.rsplit('-', 1)[0] for f in os.listdir(self.download_folder)]
-                expected_fname_noex, fname_ex = os.path.basename(self.expected_filename).rsplit('.', 1)
+                #  LOG.debug("Handling generic")
+                # remove thumbnail images from list
+                img_pattern = re.compile(
+                    r'(\.(jpg|jpeg|png|gif|bmp))$', flags=re.IGNORECASE)
+                flistdir = [f.rsplit('-', 1)[0] for f in
+                            os.listdir(self.download_folder)
+                            if not img_pattern.search(f)]
+                expected_fname_noex = os.path.basename(
+                    self.expected_filename).rsplit('.', 1)
 
                 if expected_fname_noex in flistdir:
                     try:
-                        rsize = int(await get_header(self.playlist.bot.aiosession, self.url, 'CONTENT-LENGTH'))
+                        rsize = int(await get_header(
+                            self.playlist.bot.aiosession,
+                            self.url, 'CONTENT-LENGTH'))
                     except:
                         rsize = 0
 
                     lfile = os.path.join(
                         self.download_folder,
-                        os.listdir(self.download_folder)[flistdir.index(expected_fname_noex)]
+                        os.listdir(self.download_folder)[
+                            flistdir.index(expected_fname_noex)]
                     )
 
-                    # print("Resolved %s to %s" % (self.expected_filename, lfile))
+                    #  LOG.debug("Resolved %s to %s" % (self.expected_filename, \
+                    # lfile))
                     lsize = os.path.getsize(lfile)
-                    # print("Remote size: %s Local size: %s" % (rsize, lsize))
+                    #  LOG.debug("Remote size: %s Local size: %s" % (rsize, lsize))
 
                     if lsize != rsize:
                         await self._really_download(hash=True)
                     else:
-                        # print("[Download] Cached:", self.url)
+                        #  LOG.debug("[Download] Cached:", self.url)
                         self.filename = lfile
 
                 else:
-                    # print("File not found in cache (%s)" % expected_fname_noex)
+                    # LOG.debug("File not found in cache (%s)" % \
+                    # expected_fname_noex)
                     await self._really_download(hash=True)
 
             else:
-                ldir = os.listdir(self.download_folder)
+                img_pattern = re.compile(
+                    r'(\.(jpg|jpeg|png|gif|bmp))$', flags=re.IGNORECASE)
+                ldir = [f for f in os.listdir(
+                    self.download_folder) if not img_pattern.search(f)]
                 flistdir = [f.rsplit('.', 1)[0] for f in ldir]
                 expected_fname_base = os.path.basename(self.expected_filename)
                 expected_fname_noex = expected_fname_base.rsplit('.', 1)[0]
@@ -191,13 +233,17 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 # or i have youtube to blame for changing shit again
 
                 if expected_fname_base in ldir:
-                    self.filename = os.path.join(self.download_folder, expected_fname_base)
-                    log.info("Download cached: {}".format(self.url))
+                    self.filename = os.path.join(
+                        self.download_folder, expected_fname_base)
+                    LOG.info("Download cached: %s", self.url)
 
                 elif expected_fname_noex in flistdir:
-                    log.info("Download cached (different extension): {}".format(self.url))
-                    self.filename = os.path.join(self.download_folder, ldir[flistdir.index(expected_fname_noex)])
-                    log.debug("Expected {}, got {}".format(
+                    LOG.info(
+                        "Download cached (different extension): %s", self.url)
+                    self.filename = os.path.join(
+                        self.download_folder,
+                        ldir[flistdir.index(expected_fname_noex)])
+                    LOG.debug("Expected %s, got %s" % (
                         self.expected_filename.rsplit('.', 1)[-1],
                         self.filename.rsplit('.', 1)[-1]
                     ))
@@ -207,34 +253,46 @@ class URLPlaylistEntry(BasePlaylistEntry):
             # Trigger ready callbacks.
             self._for_each_future(lambda future: future.set_result(self))
 
-        except Exception as e:
+        except Exception as error:
             traceback.print_exc()
-            self._for_each_future(lambda future: future.set_exception(e))
+            self._for_each_future(lambda future: future.set_exception(error))
 
         finally:
             self._is_downloading = False
 
     # noinspection PyShadowingBuiltins
     async def _really_download(self, *, hash=False):
-        log.info("Download started: {}".format(self.url))
+        LOG.info("Download started: %s", self.url)
 
         try:
-            result = await self.playlist.downloader.extract_info(self.playlist.loop, self.url, download=True)
-        except Exception as e:
-            raise ExtractionError(e)
+            result = await self.playlist.downloader.extract_info(
+                self.playlist.loop, self.url, download=True)
+        except Exception as error:
+            raise ExtractionError(error)
 
-        log.info("Download complete: {}".format(self.url))
+        LOG.info("Download complete: %s", self.url)
 
         if result is None:
-            log.critical("YTDL has failed, everyone panic")
+            LOG.critical("YTDL has failed, everyone panic")
             raise ExtractionError("ytdl broke and hell if I know why")
             # What the fuck do I do now?
 
-        self.filename = unhashed_fname = self.playlist.downloader.ytdl.prepare_filename(result)
+        self.filename = unhashed_fname = \
+            self.playlist.downloader.ytdl.prepare_filename(result)
 
+        # Search for file name with an image suffix
+        img_pattern = re.compile(
+            self.filename.lstrip(self.download_folder + os.sep)
+            .rsplit('.', 1)[0] +
+            r'(\.(jpg|jpeg|png|gif|bmp))$', re.IGNORECASE)
+        self.filename_thumbnail = next(
+            os.path.join(self.download_folder, f)
+            for f in os.listdir(self.download_folder) if img_pattern.search(f))
         if hash:
-            # insert the 8 last characters of the file hash to the file name to ensure uniqueness
-            self.filename = md5sum(unhashed_fname, 8).join('-.').join(unhashed_fname.rsplit('.', 1))
+            # insert the 8 last characters of the file hash to the file name to
+            # ensure uniqueness
+            self.filename = md5sum(unhashed_fname, 8).join(
+                '-.').join(unhashed_fname.rsplit('.', 1))
 
             if os.path.isfile(self.filename):
                 # Oh bother it was actually there.
@@ -245,6 +303,8 @@ class URLPlaylistEntry(BasePlaylistEntry):
 
 
 class StreamPlaylistEntry(BasePlaylistEntry):
+    """ TODO """
+
     def __init__(self, playlist, url, title, *, destination=None, **meta):
         super().__init__()
 
@@ -288,19 +348,21 @@ class StreamPlaylistEntry(BasePlaylistEntry):
 
             # TODO: Better [name] fallbacks
             if 'channel' in data['meta']:
-                ch = playlist.bot.get_channel(data['meta']['channel']['id'])
-                meta['channel'] = ch or data['meta']['channel']['name']
+                channel = playlist.bot.get_channel(
+                    data['meta']['channel']['id'])
+                meta['channel'] = channel or data['meta']['channel']['name']
 
             if 'author' in data['meta']:
-                meta['author'] = meta['channel'].server.get_member(data['meta']['author']['id'])
+                meta['author'] = meta['channel'].server.get_member(
+                    data['meta']['author']['id'])
 
             entry = cls(playlist, url, title, destination=destination, **meta)
             if not destination and filename:
                 entry.filename = destination
 
             return entry
-        except Exception as e:
-            log.error("Could not load {}".format(cls.__name__), exc_info=e)
+        except Exception as error:
+            LOG.error("Could not load %s", cls.__name__, exc_info=error)
 
     # noinspection PyMethodOverriding
     async def _download(self, *, fallback=False):
@@ -309,12 +371,13 @@ class StreamPlaylistEntry(BasePlaylistEntry):
         url = self.destination if fallback else self.url
 
         try:
-            result = await self.playlist.downloader.extract_info(self.playlist.loop, url, download=False)
-        except Exception as e:
+            result = await self.playlist.downloader.extract_info(
+                self.playlist.loop, url, download=False)
+        except Exception as error:
             if not fallback and self.destination:
                 return await self._download(fallback=True)
 
-            raise ExtractionError(e)
+            raise ExtractionError(error)
         else:
             self.filename = result['url']
             # I might need some sort of events or hooks or shit

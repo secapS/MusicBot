@@ -2,13 +2,13 @@ import shutil
 import logging
 import traceback
 import configparser
-
 import discord
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 class PermissionsDefaults:
+    """ TODO """
     perms_file = 'config/permissions.ini'
 
     CommandWhiteList = set()
@@ -28,20 +28,24 @@ class PermissionsDefaults:
 
 
 class Permissions:
+    """ TODO """
     def __init__(self, config_file, grant_all=None):
         self.config_file = config_file
         self.config = configparser.ConfigParser(interpolation=None)
 
         if not self.config.read(config_file, encoding='utf-8'):
-            log.info("Permissions file not found, copying example_permissions.ini")
+            LOG.info("Permissions file not found, \
+            copying example_permissions.ini")
 
             try:
                 shutil.copy('config/example_permissions.ini', config_file)
                 self.config.read(config_file, encoding='utf-8')
 
-            except Exception as e:
+            except Exception as error:
                 traceback.print_exc()
-                raise RuntimeError("Unable to copy config/example_permissions.ini to {}: {}".format(config_file, e))
+                raise RuntimeError(
+                    "Unable to copy config/example_permissions.ini to %s: %s",
+                    (config_file, error))
 
         self.default_group = PermissionGroup('Default', self.config['Default'])
         self.groups = set()
@@ -49,25 +53,29 @@ class Permissions:
         for section in self.config.sections():
             self.groups.add(PermissionGroup(section, self.config[section]))
 
-        # Create a fake section to fallback onto the permissive default values to grant to the owner
+        # Create a fake section to fallback onto the permissive default values
+        # to grant to the owner
         # noinspection PyTypeChecker
-        owner_group = PermissionGroup("Owner (auto)", configparser.SectionProxy(self.config, None))
+        owner_group = PermissionGroup(
+            "Owner (auto)", configparser.SectionProxy(self.config, None))
         if hasattr(grant_all, '__iter__'):
             owner_group.user_list = set(grant_all)
 
         self.groups.add(owner_group)
 
     async def async_validate(self, bot):
-        log.debug("Validating permissions...")
+        """ TODO """
+        LOG.debug("Validating permissions...")
 
-        og = discord.utils.get(self.groups, name="Owner (auto)")
-        if 'auto' in og.user_list:
-            log.debug("Fixing automatic owner group")
-            og.user_list = {bot.config.owner_id}
+        owner_groups = discord.utils.get(self.groups, name="Owner (auto)")
+        if 'auto' in owner_groups.user_list:
+            LOG.debug("Fixing automatic owner group")
+            owner_groups .user_list = {bot.config.owner_id}
 
     def save(self):
-        with open(self.config_file, 'w') as f:
-            self.config.write(f)
+        """ TODO """
+        with open(self.config_file, 'w') as file_:
+            self.config.write(file_)
 
     def for_user(self, user):
         """
@@ -79,11 +87,13 @@ class Permissions:
             if user.id in group.user_list:
                 return group
 
-        # The only way I could search for roles is if I add a `server=None` param and pass that too
-        if type(user) == discord.User:
+        # The only way I could search for roles is if I add a `server=None`
+        # param and pass that too
+        if isinstance(user, discord.User):
             return self.default_group
 
-        # We loop again so that we don't return a role based group before we find an assigned one
+        # We loop again so that we don't return a role based group before we
+        # find an assigned one
         for group in self.groups:
             for role in user.roles:
                 if role.id in group.granted_to_roles:
@@ -92,38 +102,55 @@ class Permissions:
         return self.default_group
 
     def create_group(self, name, **kwargs):
-        self.config.read_dict({name:kwargs})
+        """ TODO """
+        self.config.read_dict({name: kwargs})
         self.groups.add(PermissionGroup(name, self.config[name]))
         # TODO: Test this
 
 
 class PermissionGroup:
+    """ TODO """
     def __init__(self, name, section_data):
         self.name = name
 
-        self.command_whitelist = section_data.get('CommandWhiteList', fallback=PermissionsDefaults.CommandWhiteList)
-        self.command_blacklist = section_data.get('CommandBlackList', fallback=PermissionsDefaults.CommandBlackList)
-        self.ignore_non_voice = section_data.get('IgnoreNonVoice', fallback=PermissionsDefaults.IgnoreNonVoice)
-        self.granted_to_roles = section_data.get('GrantToRoles', fallback=PermissionsDefaults.GrantToRoles)
-        self.user_list = section_data.get('UserList', fallback=PermissionsDefaults.UserList)
-
-        self.max_songs = section_data.get('MaxSongs', fallback=PermissionsDefaults.MaxSongs)
-        self.max_song_length = section_data.get('MaxSongLength', fallback=PermissionsDefaults.MaxSongLength)
-        self.max_playlist_length = section_data.get('MaxPlaylistLength', fallback=PermissionsDefaults.MaxPlaylistLength)
-
-        self.allow_playlists = section_data.get('AllowPlaylists', fallback=PermissionsDefaults.AllowPlaylists)
-        self.instaskip = section_data.get('InstaSkip', fallback=PermissionsDefaults.InstaSkip)
-
-        self.allow_higher_volume = section_data.get('AllowHigherVolume', fallback=PermissionsDefaults.AllowHigherVolume)
+        self.command_whitelist = section_data.get(
+            'CommandWhiteList', fallback=PermissionsDefaults.CommandWhiteList)
+        self.command_blacklist = section_data.get(
+            'CommandBlackList', fallback=PermissionsDefaults.CommandBlackList)
+        self.ignore_non_voice = section_data.get(
+            'IgnoreNonVoice', fallback=PermissionsDefaults.IgnoreNonVoice)
+        self.granted_to_roles = section_data.get(
+            'GrantToRoles', fallback=PermissionsDefaults.GrantToRoles)
+        self.user_list = section_data.get(
+            'UserList', fallback=PermissionsDefaults.UserList)
+        self.max_songs = section_data.get(
+            'MaxSongs', fallback=PermissionsDefaults.MaxSongs)
+        self.max_song_length = section_data.get(
+            'MaxSongLength', fallback=PermissionsDefaults.MaxSongLength)
+        self.max_playlist_length = \
+            section_data.get(
+                'MaxPlaylistLength',
+                fallback=PermissionsDefaults.MaxPlaylistLength)
+        self.allow_playlists = section_data.get(
+            'AllowPlaylists', fallback=PermissionsDefaults.AllowPlaylists)
+        self.instaskip = section_data.get(
+            'InstaSkip', fallback=PermissionsDefaults.InstaSkip)
+        self.allow_higher_volume = \
+            section_data.get(
+                'AllowHigherVolume',
+                fallback=PermissionsDefaults.AllowHigherVolume)
 
         self.validate()
 
     def validate(self):
+        """ TODO """
         if self.command_whitelist:
-            self.command_whitelist = set(self.command_whitelist.lower().split())
+            self.command_whitelist = set(
+                self.command_whitelist.lower().split())
 
         if self.command_blacklist:
-            self.command_blacklist = set(self.command_blacklist.lower().split())
+            self.command_blacklist = set(
+                self.command_blacklist.lower().split())
 
         if self.ignore_non_voice:
             self.ignore_non_voice = set(self.ignore_non_voice.lower().split())
@@ -157,12 +184,19 @@ class PermissionGroup:
             self.instaskip, PermissionsDefaults.InstaSkip
         )
 
-        self.allow_higher_volume = configparser.RawConfigParser.BOOLEAN_STATES.get(
-            self.allow_higher_volume, PermissionsDefaults.AllowHigherVolume
-        )
+        self.allow_higher_volume = \
+            configparser.RawConfigParser.BOOLEAN_STATES.get(
+                self.allow_higher_volume, PermissionsDefaults.AllowHigherVolume
+            )
 
     @staticmethod
-    def _process_list(seq, *, split=' ', lower=True, strip=', ', coerce=str, rcoerce=list):
+    def _process_list(seq,
+                      *,
+                      split=' ',
+                      lower=True,
+                      strip=', ',
+                      coerce=str,
+                      rcoerce=list):
         lower = str.lower if lower else None
         _strip = (lambda x: x.strip(strip)) if strip else None
         coerce = coerce if callable(coerce) else None
@@ -173,17 +207,19 @@ class PermissionGroup:
 
         values = [i for i in seq.split(split) if i]
         for fn in (_strip, lower, coerce):
-            if fn: values = map(fn, values)
+            if fn:
+                values = map(fn, values)
 
         return rcoerce(values)
 
     def add_user(self, uid):
+        """ TODO """
         self.user_list.add(uid)
 
     def remove_user(self, uid):
+        """ TODO """
         if uid in self.user_list:
             self.user_list.remove(uid)
-
 
     def __repr__(self):
         return "<PermissionGroup: %s>" % self.name
