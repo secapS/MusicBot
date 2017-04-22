@@ -66,7 +66,7 @@ class MusicBot(discord.Client):
         self.timeout = self.config.timeout
 
         self.blacklist = set(load_file(self.config.blacklist_file))
-        self.autoplaylist = load_file(self.config.auto_playlist_file)
+        self.autoplaylist = load_file(self.config.autoplaylist_file)
         self.banned = set(load_file(self.config.banned_file))
 
         self.song_list = self.autoplaylist[:]
@@ -83,8 +83,8 @@ class MusicBot(discord.Client):
             LOG.info("Loaded autoplaylist with %s entries",
                      len(self.autoplaylist))
 
-        if self.blacklist:
-            LOG.debug("Loaded blacklist with %s entries", len(self.blacklist))
+        if self.banned:
+            LOG.debug("Loaded banned list with %s entries", len(self.banned))
 
         # TODO: Do these properly
         ssd_defaults = {
@@ -382,7 +382,7 @@ class MusicBot(discord.Client):
             LOG.info(
                 "Removing unplayable song from autoplaylist: %s", song_url)
 
-            with open(self.config.auto_playlist_removed_file, 'a',
+            with open(self.config.autoplaylist_removed_file, 'a',
                       encoding='utf8') as file_:
                 file_.write(
                     '# Entry removed {ctime}\n'
@@ -397,7 +397,7 @@ class MusicBot(discord.Client):
 
             if delete_from_ap:
                 LOG.info("Updating autoplaylist")
-                write_file(self.config.auto_playlist_file, self.autoplaylist)
+                write_file(self.config.autoplaylist_file, self.autoplaylist)
 
     @ensure_appinfo
     async def generate_invite_link(self,
@@ -1390,6 +1390,7 @@ class MusicBot(discord.Client):
     async def cmd_help(self, command=None):
         """
         Usage:
+            {command_prefix}help
             {command_prefix}help [command]
 
         Prints a help message.
@@ -1421,69 +1422,48 @@ class MusicBot(discord.Client):
                         self.config.command_prefix, command_name))
 
             helpmsg += ", ".join(commands)
-            helpmsg += "```\n \
-            <https://github.com/DiscordMusicBot/MusicBot/wiki/Commands>"
-            helpmsg += "\nYou can also use `{}help x` for more info about each command." \
+            helpmsg += "```\n <https://github.com/DiscordMusicBot/MusicBot/wiki/Commands>"
+            helpmsg += "\n\nYou can also use `{}help x` for more info about each command." \
             .format(self.config.command_prefix)
 
             return Response(helpmsg, reply=True, delete_after=60)
 
-    async def cmd_blacklist(self, message, user_mentions, option, something):
+    async def cmd_blacklist(self, option, song_url):
         """
         Usage:
-            {command_prefix}blacklist [ + | - | add | remove ] \
-            @UserName [@UserName2 ...]
+            {command_prefix}blacklist [ + | - | add | remove ] url
 
-        Add or remove users to the blacklist.
-        Blacklisted users are forbidden from using bot commands.
+        Add or remove song URL to the blacklist.
         """
 
-        if not user_mentions:
-            raise exceptions.CommandError("No users listed.", expire_in=20)
+        song_url = song_url.strip('<>')
 
         if option not in ['+', '-', 'add', 'remove']:
             raise exceptions.CommandError(
-                'Invalid option "%s" specified, use +, -, add, or remove' %
-                option, expire_in=20
+                "Invalid option \"%s\" specified, use +, -, add, or remove" % option, expire_in=20
             )
 
-        for user in user_mentions.copy():
-            if user.id == self.config.owner_id:
-                LOG.info(
-                    "[Commands:Blacklist] The owner cannot be blacklisted.")
-                user_mentions.remove(user)
-
-        old_len = len(self.blacklist)
-
         if option in ['+', 'add']:
-            self.blacklist.update(user.id for user in user_mentions)
+            self.blacklist.update(song_url)
 
             write_file(self.config.blacklist_file, self.blacklist)
 
             return Response(
-                '%s users have been added to the blacklist' % (
-                    len(self.blacklist) - old_len),
-                reply=True,
-                delete_after=10
+                "%s has been added to the blacklist." % (song_url),
+                reply=True, delete_after=10
             )
 
         else:
-            if self.blacklist.isdisjoint(user.id for user in user_mentions):
-                return Response(
-                    'none of those users are in the blacklist.',
-                    reply=True,
-                    delete_after=10)
+            if self.blacklist.isdisjoint(song_url):
+                return Response("The song is not blacklisted.", reply=True, delete_after=10)
 
             else:
-                self.blacklist.difference_update(
-                    user.id for user in user_mentions)
+                self.blacklist.difference_update(song_url)
                 write_file(self.config.blacklist_file, self.blacklist)
 
                 return Response(
-                    '%s users have been removed from the blacklist' % (
-                        old_len - len(self.blacklist)),
-                    reply=True,
-                    delete_after=10
+                    "%s has been removed from the blacklist." % (song_url),
+                    reply=True, delete_after=10
                 )
 
     async def cmd_id(self, author, user_mentions):
@@ -1494,53 +1474,70 @@ class MusicBot(discord.Client):
         Tells the user their id or the id of another user.
         """
         if not user_mentions:
-            return Response("your id is %s" % author.id,
+            return Response("your id is `%s`" % author.id,
                             reply=True,
                             delete_after=35)
         else:
             usr = user_mentions[0]
-            return Response("%s's id is %s" % (usr.name, usr.id),
+            return Response("%s's id is `%s`" % (usr.name, usr.id),
                             reply=True,
                             delete_after=35)
 
     @owner_only
-    async def cmd_ban(self, message, user_mentions, option, song_url):
+    async def cmd_ban(self, option, user_mentions):
         """
         Usage:
-            {command_prefix}ban [ + | - | add | remove ] url
+            {command_prefix}ban [ + | - | add | remove ] @UserName [@UserName2 ...]
 
-        Add or remove users to the blacklist.
-        Blacklisted users are forbidden from using bot commands.
+        Add or remove users to the banned list.
+        Banned users are forbidden from using bot.
         """
 
-        song_url = song_url.strip('<>')
+        if not user_mentions:
+            raise exceptions.CommandError("No users listed.", expire_in=20)
 
         if option not in ['+', '-', 'add', 'remove']:
             raise exceptions.CommandError(
-                'Invalid option "%s" specified, use +, -, add, or remove' % option, expire_in=20
+                "Invalid option \"%s\" specified, use +, -, add, or remove" %
+                option, expire_in=20
             )
 
+        for user in user_mentions.copy():
+            if user.id == self.config.owner_id:
+                LOG.info("[Commands:ban] The owner cannot be banned.")
+                user_mentions.remove(user)
+
+        old_len = len(self.banned)
+
         if option in ['+', 'add']:
-            self.banned.update(song_url)
+            self.banned.update(user.id for user in user_mentions)
 
             write_file(self.config.banned_file, self.banned)
 
             return Response(
-                '%s has been added to the blacklist.' % (song_url),
-                reply=True, delete_after=10
+                "%s users have been added to the banned list" % (
+                    len(self.banned) - old_len),
+                reply=True,
+                delete_after=10
             )
 
         else:
-            if self.banned.isdisjoint(song_url):
-                return Response('that song is not on the list.', reply=True, delete_after=10)
+            if self.banned.isdisjoint(user.id for user in user_mentions):
+                return Response(
+                    "None of those users are in the banned.",
+                    reply=True,
+                    delete_after=10)
 
             else:
-                self.banned.difference_update(song_url)
+                self.banned.difference_update(
+                    user.id for user in user_mentions)
                 write_file(self.config.banned_file, self.banned)
 
                 return Response(
-                    '%s has been removed from the blacklist.' % (song_url),
-                    reply=True, delete_after=10
+                    "%s users have been removed from the banned" % (
+                        old_len - len(self.banned)),
+                    reply=True,
+                    delete_after=10
                 )
 
     @owner_only
@@ -1569,7 +1566,7 @@ class MusicBot(discord.Client):
 
         except:
             raise exceptions.CommandError(
-                'Invalid URL provided:\n{}\n'.
+                "Invalid URL provided:\n{}\n".
                 format(server_link), expire_in=30)
 
     async def cmd_broadcast(self, args, leftover_args):
@@ -2192,9 +2189,9 @@ class MusicBot(discord.Client):
 
             if player.current_entry.meta.get('channel', False) and \
                     player.current_entry.meta.get('author', False):
-                np_text = "Now {action}: **{title}** added by \
-                **{author}**\nProgress: {progress_bar} {progress}\n\n \
-                :point_right: <{url}>" \
+                np_text = "Now {action}: **{title}** added by **{author}** \
+                \nProgress: {progress_bar} {progress} \
+                \n\n:point_right: <{url}>" \
                 .format(
                     action=action_text,
                     title=player.current_entry.title,
@@ -2204,8 +2201,9 @@ class MusicBot(discord.Client):
                     url=player.current_entry.url
                 )
             else:
-                np_text = "Now {action}: **{title}**\nProgress: {progress_bar} \
-                 {progress}\n\n:point_right: <{url}>" \
+                np_text = "Now {action}: **{title}** \
+                \nProgress: {progress_bar} {progress} \
+                \n\n:point_right: <{url}>" \
                 .format(
                     action=action_text,
                     title=player.current_entry.title,
@@ -2228,26 +2226,26 @@ class MusicBot(discord.Client):
                 delete_after=30
             )
 
-    async def cmd_playlist(self, option, song_url):
+    async def cmd_playlist(self, player, option, song_url=None):
         """
         Usage:
+            {command_prefix}playlist [ + | - | add | remove ]
             {command_prefix}playlist [ + | - | add | remove ] url
 
-        Add or remove the current song or url to the playlist.
+        Add or remove the current song to the playlist.
+        Add or remove the song based on the url to the playlist.
         """
-
-        song_url = song_url.strip('<>')
-
         if option not in ['+', '-', 'add', 'remove']:
             raise exceptions.CommandError(
-                'Invalid option "%s" specified, use +, -, add, or remove' % option, expire_in=20
+                "Invalid option \"%s\" specified, use +, -, add, or remove" % option,
+                expire_in=20
             )
 
         # No URL provided
-        if not song_url:
+        if song_url is None:
             # Check if there is something playing
             if not player._current_entry:
-                raise exceptions.CommandError('There is nothing playing.', expire_in=20)
+                raise exceptions.CommandError("There is nothing playing.", expire_in=20)
 
             # Get the URL of the current entry
             else:
@@ -2255,6 +2253,8 @@ class MusicBot(discord.Client):
                 title = player._current_entry.title
 
         else:
+            song_url = song_url.strip('<>')
+
             # Get song info from URL
             info = await self.downloader.safe_extract_info(
                 player.playlist.loop, song_url, download=False, process=False)
@@ -2269,25 +2269,37 @@ class MusicBot(discord.Client):
 
         if option in ['+', 'add']:
             # Verify song is not already in the playlist
-            for url in self.autoplaylist:
-                if song_url == url:
-                    return Response("Song already present in autoplaylist.", delete_after=30)
-                else:
-                    self.autoplaylist.append(song_url)
-                    write_file(self.autoplaylist_file, self.autoplaylist)
-                    self.autoplaylist = load_file(self.autoplaylist_file)
-                    return Response("Added %s to autoplaylist." % title, delete_after=30)
-        else:
-            # Verify that the song is in our playlist
+            added = False
+
             for url in self.autoplaylist:
                 if song_url != url:
-                    return Response("Song not present in autoplaylist.", delete_after=30)
-                else:
-                    self.autoplaylist.remove(song_url)
-                    write_file(self.config.auto_playlist_file, self.autoplaylist)
-                    self.autoplaylist = load_file(self.config.auto_playlist_file)
-                    return Response("Removed %s from the autoplaylist." % title, delete_after=30)
+                    self.autoplaylist.append(song_url)
+                    write_file(self.config.autoplaylist_file, self.autoplaylist)
+                    self.autoplaylist = load_file(self.config.autoplaylist_file)
+                    added = True
+                    break
 
+            if added is True:
+                return Response("Added %s to autoplaylist." % title, delete_after=30)
+            else:
+                return Response("Song already present in autoplaylist.", delete_after=30)
+
+        else:
+            # Verify that the song is in our playlist
+            removed = False
+
+            for url in self.autoplaylist:
+                if song_url == url:
+                    self.autoplaylist.remove(song_url)
+                    write_file(self.config.autoplaylist_file, self.autoplaylist)
+                    self.autoplaylist = load_file(self.config.autoplaylist_file)
+                    removed = True
+                    break
+
+            if removed is True:
+                return Response("Removed %s from the autoplaylist." % title, delete_after=30)
+            else:
+                return Response("Song not present in autoplaylist.", delete_after=30)
 
     async def cmd_summon(self, channel, server, author, voice_channel):
         """
@@ -2298,7 +2310,7 @@ class MusicBot(discord.Client):
         """
 
         if not author.voice_channel:
-            raise exceptions.CommandError('You are not in a voice channel!')
+            raise exceptions.CommandError("You are not in a voice channel!")
 
         voice_client = self.voice_client_in(server)
         if voice_client and server == author.voice_channel.server:
@@ -2381,7 +2393,7 @@ class MusicBot(discord.Client):
         player.playlist.shuffle()
 
         cards = ['\n:spades:', '\n:clubs:',
-                 '\n:heart:', '\n:diamond:']
+                 '\n:heart:', '\n:diamonds:']
         random.shuffle(cards)
 
         hand = await self.send_message(channel, ' '.join(cards))
@@ -2390,7 +2402,7 @@ class MusicBot(discord.Client):
         for x in range(4):
             random.shuffle(cards)
             await self.safe_edit_message(hand, ' '.join(cards))
-            await asyncio.sleep(0.6)
+            await asyncio.sleep(0.8)
 
         await self.safe_delete_message(hand, quiet=True)
         return Response("\n:ok_hand:", delete_after=15)
@@ -2479,8 +2491,7 @@ class MusicBot(discord.Client):
             # Currently is recounted if they vote, deafen, then vote
 
             num_voice = sum(1 for m in voice_channel.voice_members if not (
-                m.deaf or m.self_deaf or m.id in
-                [self.config.owner_id, self.user.id]))
+                m.deaf or m.self_deaf or m.id in [self.user.id]))
 
             num_skips = player.skip_state.add_skipper(author.id, message)
 
@@ -2493,7 +2504,7 @@ class MusicBot(discord.Client):
             if skips_remaining <= 0:
                 player.skip()  # check autopause stuff here
                 return Response(
-                    "Your skip for **{}** was acknowledged."
+                    "your skip for **{}** was acknowledged."
                     "\nThe vote to skip has been passed.{}".format(
                         player.current_entry.title,
                         " Next song coming up!" if player.playlist.peek() else ""
@@ -2505,7 +2516,7 @@ class MusicBot(discord.Client):
                 # TODO: When a song gets skipped, delete the old x needed to skip
                 # messages
                 return Response(
-                    "Your skip for **{}** was acknowledged."
+                    "your skip for **{}** was acknowledged."
                     "\n**{}** more {} required to vote to skip this song.".format(
                         player.current_entry.title,
                         skips_remaining,
@@ -3460,10 +3471,10 @@ class MusicBot(discord.Client):
                     'You cannot use this bot in private messages.')
                 return
 
-        if message.author.id in self.blacklist and \
+        if message.author.id in self.banned and \
                 message.author.id != self.config.owner_id:
             LOG.warning(
-                "User blacklisted: {0.id}/{0!s} ({1})"
+                "User banned: {0.id}/{0!s} ({1})"
                 .format(message.author, command))
             return
 

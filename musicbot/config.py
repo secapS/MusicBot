@@ -100,12 +100,12 @@ class Config:
         self.debug_level_str = self.debug_level
         self.blacklist_file = config.get(
             'Files', 'BlacklistFile', fallback=ConfigDefaults.blacklist_file)
-        self.auto_playlist_file = config.get(
+        self.autoplaylist_file = config.get(
             'Files', 'AutoPlaylistFile',
-            fallback=ConfigDefaults.auto_playlist_file)
+            fallback=ConfigDefaults.autoplaylist_file)
         self.banned_file = config.get(
             'Files', 'BannedFile', fallback=ConfigDefaults.banned_file)
-        self.auto_playlist_removed_file = None
+        self.autoplaylist_removed_file = None
 
         self.run_checks()
 
@@ -215,9 +215,9 @@ class Config:
         self.autojoin_channels = set(item.replace(
             ',', ' ').strip() for item in self.autojoin_channels)
 
-        ap_path, ap_name = os.path.split(self.auto_playlist_file)
+        ap_path, ap_name = os.path.split(self.autoplaylist_file)
         apn_name, apn_ext = os.path.splitext(ap_name)
-        self.auto_playlist_removed_file = os.path.join(
+        self.autoplaylist_removed_file = os.path.join(
             ap_path, apn_name + '_removed' + apn_ext)
 
         if hasattr(logging, self.debug_level.upper()):
@@ -324,10 +324,10 @@ class Config:
 
     def find_autoplaylist(self):
         """ TODO """
-        if not os.path.exists(self.auto_playlist_file):
+        if not os.path.exists(self.autoplaylist_file):
             if os.path.exists('config/example_autoplaylist.txt'):
                 shutil.copy('config/example_autoplaylist.txt',
-                            self.auto_playlist_file)
+                            self.autoplaylist_file)
                 LOG.debug("Copying example_autoplaylist.txt to autoplaylist.txt")
             else:
                 LOG.warning("No autoplaylist file found.")
@@ -366,7 +366,7 @@ class ConfigDefaults:
 
     blacklist_file = 'config/blacklist.txt'
     # TODO this will change when I add playlists
-    auto_playlist_file = 'config/autoplaylist.txt'
+    autoplaylist_file = 'config/autoplaylist.txt'
     banned_file = 'config/banned.txt'
     options_file = 'config/options.ini'
 
