@@ -1494,12 +1494,12 @@ class MusicBot(discord.Client):
         Tells the user their id or the id of another user.
         """
         if not user_mentions:
-            return Response('your id is `%s`' % author.id,
+            return Response("your id is %s" % author.id,
                             reply=True,
                             delete_after=35)
         else:
             usr = user_mentions[0]
-            return Response("%s's id is `%s`" % (usr.name, usr.id),
+            return Response("%s's id is %s" % (usr.name, usr.id),
                             reply=True,
                             delete_after=35)
 
@@ -2262,9 +2262,8 @@ class MusicBot(discord.Client):
             # Verify proper URL
             if not info:
                 raise exceptions.CommandError(
-                    'Error. Please insure that it is a valid YouTube, SoundCloud or BandCamp URL!',
+                    "Error. Please insure that it is a valid YouTube, SoundCloud or BandCamp URL!",
                     expire_in=20)
-
             else:
                 title = info.get('title', '')
 
@@ -2382,7 +2381,7 @@ class MusicBot(discord.Client):
         player.playlist.shuffle()
 
         cards = ['\n:spades:', '\n:clubs:',
-                 '\n:black_heart:', '\n:black_diamond:']
+                 '\n:heart:', '\n:diamond:']
         random.shuffle(cards)
 
         hand = await self.send_message(channel, ' '.join(cards))

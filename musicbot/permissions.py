@@ -151,6 +151,7 @@ class PermissionGroup:
         if self.dm_command_whitelist:
             self.dm_command_whitelist = set(
                 self.dm_command_whitelist.lower().split())
+
         if self.dm_command_blacklist:
             self.dm_command_blacklist = set(
                 self.dm_command_blacklist.lower().split())
