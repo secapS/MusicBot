@@ -1809,7 +1809,7 @@ class MusicBot(discord.Client):
                     player, channel, author, permissions,
                     leftover_args, e.use_url)
 
-            reply_text = "Enqueued **%s** to be played. Position in queue: %s"
+            reply_text = "Enqueued **%s** to be played.\nPosition in queue: %s"
             btext = entry.title
 
         if position == 1 and player.is_stopped:
@@ -2631,8 +2631,8 @@ class MusicBot(discord.Client):
         else:
             if relative:
                 raise exceptions.CommandError(
-                    'Unreasonable volume change provided: {}{:+} -> {}%.  \
-                    Provide a change between {} and {:+}.'
+                    'Unreasonable volume change provided: {}{:+} -> {}%\n  \
+                    Provide a change between {} and {:+}'
                     .format(old_volume,
                             vol_change,
                             old_volume + vol_change,
@@ -2641,8 +2641,8 @@ class MusicBot(discord.Client):
                     expire_in=20)
             else:
                 raise exceptions.CommandError(
-                    'Unreasonable volume provided: {}%. \
-                    Provide a value between 1 and {}.'
+                    'Unreasonable volume provided: {}%\n \
+                    Provide a value between 1 and {}'
                     .format(new_volume, max_volume),
                     expire_in=20)
 
@@ -3208,15 +3208,16 @@ class MusicBot(discord.Client):
         roll one die and show the result.
         """
         if not leftover_args:
-            raise exceptions.CommandError(
-                "Unable to roll dice. Usage: {command_prefix}roll \
-                [NUMDICE]d[4-20] or {command_prefix}roll [MAXROLL].")
+            raise exceptions.CommandError("Unable to roll dice.\n \
+            Usage: {command_prefix}roll [NUMDICE]d[4-20] or \n{command_prefix}roll [MAXROLL].",
+                            expire_in=20)
+
         diceInput = ''.join(leftover_args)
         res = re.search(r"(^\d+d\d+$)|(^\d+$)", diceInput)
         if not res:
-            raise exceptions.CommandError(
-                "Unable to roll dice. Usage: {command_prefix}roll \
-                [NUMDICE]d[4-20] or {command_prefix}roll [MAXROLL].")
+            raise exceptions.CommandError("Unable to roll dice.\n \
+            Usage: {command_prefix}roll [NUMDICE]d[4-20] or \n{command_prefix}roll [MAXROLL].",
+                            expire_in=20)
         match = res.group(0)
         diceVals = match.split('d')
         if len(diceVals) == 2:
@@ -3224,11 +3225,13 @@ class MusicBot(discord.Client):
             maxRoll = int(diceVals[1])
             if not 1 <= numDice <= 100:
                 raise exceptions.CommandError(
-                    "Unable to roll dice. Usage: \
-                    {command_prefix}roll [1-100]d[MAXROLL].")
+                    "Unable to roll dice.\n \
+                    Usage: {command_prefix}roll [1-100]d[MAXROLL].",
+                    expire_in=20)
             if maxRoll < 1:
                 raise exceptions.CommandError(
-                    "Unable to roll dice. Maximum dice value must be at least 1.")
+                    "Unable to roll dice. Maximum dice value must be at least 1.",
+                    expire_in=20)
             rollSum = 0
             for i in range(0, numDice):
                 rollSum += random.randint(1, maxRoll)
@@ -3240,7 +3243,8 @@ class MusicBot(discord.Client):
             maxRoll = int(diceVals[0])
             if maxRoll < 1:
                 raise exceptions.CommandError(
-                    "Unable to roll dice. Maximum dice value must be at least 1.")
+                    "Unable to roll dice. Maximum dice value must be at least 1.",
+                    expire_in=20)
             roll = random.randint(1, maxRoll)
             return Response(
                 ":game_die: %s rolled a %d." % (author.mention, roll),
