@@ -4,11 +4,13 @@ import collections
 
 
 class EventEmitter:
+    """ TODO """
     def __init__(self):
         self._events = collections.defaultdict(list)
         self.loop = asyncio.get_event_loop()
 
     def emit(self, event, *args, **kwargs):
+        """ TODO """
         if event not in self._events:
             return
 
@@ -24,6 +26,7 @@ class EventEmitter:
                 traceback.print_exc()
 
     def on(self, event, cb):
+        """ TODO """
         self._events[event].append(cb)
         return self
 
@@ -36,7 +39,9 @@ class EventEmitter:
         return self
 
     def once(self, event, cb):
+        """ TODO """
         def callback(*args, **kwargs):
+            """ TODO """
             self.off(event, callback)
             return cb(*args, **kwargs)
 

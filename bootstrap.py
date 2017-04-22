@@ -1,6 +1,7 @@
 '''
 
-If this is running then python is obviously installed, but we need to make sure that python3 is installed.
+If this is running then python is obviously installed,
+but we need to make sure that python3 is installed.
 
 What we need to do:
     0. (optional) Check disk space
@@ -16,15 +17,19 @@ What we need to do:
       - libsodium (sometimes needed, might need to check after pynacl)
       - a compiler
     3: Ensure pip and update pip
-    4: Git clone and clean out non arch related stuff (run scripts, bins/ on non-windows)
-    5: Install requirements.txt packages (if everything is ok then no errors should occur)
+    4: Git clone and clean out non arch related stuff (run scripts,
+        bins/ on non-windows)
+    5: Install requirements.txt packages (if everything is ok then
+        no errors should occur)
     6. Copy configs and prompt the user for something (maybe)
 
-The OSX specific steps might be a bit different so we just need to pay special attention to those steps
+The OSX specific steps might be a bit different so we just need to pay
+ special attention to those steps
 Remember to make sure the user knows the script might prompt for password
 Print the command beforehand just so they know whats happening
 
-When the script runs the user should be greeted with some text and a press [enter/whatever] to continue prompt
+When the script runs the user should be greeted with some text and
+ a press [enter/whatever] to continue prompt
 '''
 
 from __future__ import print_function
@@ -33,7 +38,6 @@ import os
 import re
 import shutil
 import sys
-import logging
 import platform
 import tempfile
 import traceback
@@ -101,6 +105,7 @@ def sudo_check_call(args, **kwargs):
 
     return subprocess.check_call(('sudo',) + tuple(args), **kwargs)
 
+
 def tmpdownload(url, name=None, subdir=''):
     if name is None:
         name = os.path.basename(url)
@@ -108,8 +113,10 @@ def tmpdownload(url, name=None, subdir=''):
     _name = os.path.join(TEMP_DIR.name, subdir, name)
     return urlretrieve(url, _name)
 
+
 def find_library(libname):
-    if SYS_PLATFORM == 'win32': return
+    if SYS_PLATFORM == 'win32':
+        return
 
     # TODO: This
 
@@ -118,10 +125,12 @@ def find_library(libname):
 Finding lib dev headers:
     1. Get include dirs and search for headers
         "echo | gcc -xc++ -E -v -" and parse for include dirs
-        linux subprocess.check_output("find /usr[/local]/include -iname 'ffi.h'", shell=True) (find /usr/include /usr/local/include ...?)
+        linux subprocess.check_output("find /usr[/local]/include -iname \
+         'ffi.h'", shell=True) (find /usr/include /usr/local/include ...?)
 
     2. Have gcc deal with it and check the error output
-        gcc -lffi (Fail: cannot find -lffi) vs (Success: ...  undefined reference to `main')
+        gcc -lffi (Fail: cannot find -lffi) vs (Success: ...
+          undefined reference to `main')
 """
 
 ###############################################################################
@@ -138,11 +147,14 @@ class SetupTask(object):
         if item.endswith('_dist'):
             try:
                 # check for dist aliases, ex: setup_dist -> setup_win32
-                return object.__getattribute__(self, item.rsplit('_', 1)[0] + '_' + SYS_PLATFORM)
+                return object.__getattribute__(
+                    self, item.rsplit('_', 1)[0] + '_' + SYS_PLATFORM)
             except:
                 try:
-                    # If there's no dist variant, try to fallback to the generic, ex: setup_dist -> setup
-                    return object.__getattribute__(self, item.rsplit('_', 1)[0])
+                    # If there's no dist variant, try to fallback to the
+                    # generic, ex: setup_dist -> setup
+                    return object.__getattribute__(
+                        self, item.rsplit('_', 1)[0])
                 except:
                     pass
 
@@ -218,14 +230,16 @@ class EnsurePython(SetupTask):
             except OSError:
                 sudo_check_call("rm -rf %s" % PY_BUILD_DIR)
 
-        subprocess.check_output("tar -xf {} -C {}".format(data, TEMP_DIR.name).split())
+        subprocess.check_output(
+            "tar -xf {} -C {}".format(data, TEMP_DIR.name).split())
 
         olddir = os.getcwd()
         # chdir into it
         os.chdir(PY_BUILD_DIR)
 
         # Configure and make.
-        subprocess.check_call('./configure --enable-ipv6 --enable-shared --with-system-ffi --without-ensurepip'.split())
+        subprocess.check_call('./configure --enable-ipv6 --enable-shared \
+        --with-system-ffi --without-ensurepip'.split())
         subprocess.check_call('make')
         sudo_check_call("make install")
 
@@ -240,14 +254,15 @@ class EnsurePython(SetupTask):
         # Restart into the new executable.
         print("Rebooting into Python {}...".format(TARGET_PY_VERSION))
         # Use os.execl to switch program
-        os.execl("/usr/local/bin/{}".format(executable), "{}".format(executable), __file__)
+        os.execl("/usr/local/bin/{}".format(executable),
+                 "{}".format(executable), __file__)
 
     def download_darwin(self):
         pkg, _ = tmpdownload(self.PYTHON_PKG.format(ver=TARGET_PY_VERSION))
         return pkg
 
     def setup_darwin(self, data):
-        subprocess.check_call(data.split()) # I hope this works?
+        subprocess.check_call(data.split())  # I hope this works?
         self._restart(None)
 
     def _restart(self, *cmds):
@@ -256,7 +271,9 @@ class EnsurePython(SetupTask):
 
 
 class EnsureEnv(SetupTask):
-    pass  # basically the important checks from run.py, not sure exactly what I need to check though
+    pass
+    # basically the important checks from run.py,
+    # not sure exactly what I need to check though
 
 
 class EnsureBrew(SetupTask):
@@ -272,7 +289,8 @@ class EnsureBrew(SetupTask):
         return True
 
     def download(self):
-        cmd = '/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"'
+        cmd = '/usr/bin/ruby -e "$(curl -fsSL \
+        https://raw.githubusercontent.com/Homebrew/install/master/install)"'
         subprocess.check_call(cmd, shell=True)
 
     def setup(self, data):
@@ -321,12 +339,14 @@ class EnsureGit(SetupTask):
     @classmethod
     def _get_latest_win_get_download(cls):
         dist_ver, full_ver = cls._get_latest_win_git_version()
-        url = "https://github.com/git-for-windows/git/releases/download/{fullver}/Git-{ver}-{arch}-bit.exe"
+        url = "https://github.com/git-for-windows/git/releases/download/\
+        {fullver}/Git-{ver}-{arch}-bit.exe"
 
         return url.format(full_ver=full_ver, ver=dist_ver, arch=SYS_ARCH)
 
     def download_win32(self):
-        result, _ = tmpdownload(self._get_latest_win_git_version(), 'git-setup.exe')
+        result, _ = tmpdownload(
+            self._get_latest_win_git_version(), 'git-setup.exe')
         return result
 
     def setup_win32(self, data):
@@ -350,7 +370,8 @@ class EnsureGit(SetupTask):
         pass  # need package manager abstraction
 
     # def setup_linux(self, data):
-    #     pass  # nothing really needed, I don't think setting any git options is necessary
+    # pass  # nothing really needed, I don't think setting any git options is
+    # necessary
 
     def download_darwin(self):
         subprocess.check_call('brew install git'.split())
@@ -363,11 +384,12 @@ class EnsureFFmpeg(SetupTask):
     AVCONV_CHECK = b"Please use avconv instead"
 
     def check_win32(self):
-        return True # ffmpeg comes with the bot
+        return True  # ffmpeg comes with the bot
 
     def check(self):
         try:
-            data = subprocess.check_output(['ffmpeg', '-version'], stderr=subprocess.STDOUT)
+            data = subprocess.check_output(
+                ['ffmpeg', '-version'], stderr=subprocess.STDOUT)
         except FileNotFoundError:
             return False
         else:
@@ -392,7 +414,7 @@ class EnsureOpus(SetupTask):
     """
 
     def check_win32(self):
-        return True # opus comes with the lib
+        return True  # opus comes with the lib
 
     def check(self):
         pass
@@ -416,7 +438,7 @@ class EnsureFFI(SetupTask):
     """
 
     def check_win32(self):
-        return True # cffi has wheels
+        return True  # cffi has wheels
 
     def check(self):
         pass
@@ -434,9 +456,9 @@ class EnsureFFI(SetupTask):
         pass
 
 
-
 class EnsureSodium(SetupTask):
-    # This one is going to be weird since sometimes its not needed (check python import)
+    # This one is going to be weird since sometimes its not needed (check
+    # python import)
 
     def check_win32(self):
         return True
@@ -446,7 +468,7 @@ class EnsureCompiler(SetupTask):
     # oh god
 
     def check_win32(self):
-        return True # yay wheels
+        return True  # yay wheels
 
 
 class EnsurePip(SetupTask):
@@ -524,7 +546,7 @@ class SetupMusicbot(SetupTask):
     def _rm_dir(self, d):
         return rmtree(d, ignore_errors=True)
 
-    def download(self): # lazy way to call a function on all platforms
+    def download(self):  # lazy way to call a function on all platforms
         self._rm('.dockerignore')
         self._rm('Dockerfile')
 
@@ -552,7 +574,8 @@ def preface():
 
 
 def main():
-    print("Bootstrapping MusicBot on Python %s." % '.'.join(list(map(str, PY_VERSION))))
+    print("Bootstrapping MusicBot on Python %s." % '.'
+          .join(list(map(str, PY_VERSION))))
 
     EnsurePython.run()
     EnsureBrew.run()

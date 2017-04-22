@@ -1,4 +1,4 @@
 pip
 discord.py[voice] ~= 0.16.7
-youtube_dl == 2017.03.24
+youtube_dl == 2017.04.17
 colorlog ~= 2.10.0
