@@ -2966,7 +2966,7 @@ class MusicBot(discord.Client):
             {command_prefix}promote [song position]
 
         Promotes the last song in the queue to the front.
-        If you specify a position, it promotes the song to be first in the queue.
+        If a position is specifyed, the song is promotes to be first in the queue.
         """
 
         if player.is_stopped:
@@ -3068,12 +3068,12 @@ class MusicBot(discord.Client):
 
 
     async def cmd_playnow(self,
-                        player,
-                        channel,
-                        author,
-                        permissions,
-                        leftover_args,
-                        song_url):
+                          player,
+                          channel,
+                          author,
+                          permissions,
+                          leftover_args,
+                          song_url):
         """
         Usage:
             {command_prefix}playnow song_link
@@ -3180,7 +3180,7 @@ class MusicBot(discord.Client):
                 if e.use_url == song_url:
                     LOG.warning(
                         "Determined incorrect entry type, but suggested url \
-                        is the same.  Help.")
+                        is the same. Help.")
 
                 if self.config.debug_mode:
                     LOG.info(

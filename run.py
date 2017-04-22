@@ -132,7 +132,6 @@ class PIP(object):
 
 
 # Setup initial loggers
-
 TMPFILE = tempfile.TemporaryFile('w+', encoding='utf8')
 LOG = logging.getLogger('launcher')
 LOG.setLevel(logging.DEBUG)
