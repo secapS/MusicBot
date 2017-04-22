@@ -11,6 +11,8 @@ class PermissionsDefaults:
     """ TODO """
     perms_file = 'config/permissions.ini'
 
+    DMCommandWhiteList = set()
+    DMCommandBlackList = set()
     CommandWhiteList = set()
     CommandBlackList = set()
     IgnoreNonVoice = set()
@@ -20,10 +22,8 @@ class PermissionsDefaults:
     MaxSongs = 0
     MaxSongLength = 0
     MaxPlaylistLength = 0
-
     AllowPlaylists = True
     InstaSkip = False
-
     AllowHigherVolume = False
 
 
@@ -113,6 +113,10 @@ class PermissionGroup:
     def __init__(self, name, section_data):
         self.name = name
 
+        self.dm_command_whitelist = section_data.get(
+            'DMCommandWhiteList', fallback=PermissionsDefaults.DMCommandWhiteList)
+        self.dm_command_blacklist = section_data.get(
+            'DMCommandBlackList', fallback=PermissionsDefaults.DMCommandBlackList)
         self.command_whitelist = section_data.get(
             'CommandWhiteList', fallback=PermissionsDefaults.CommandWhiteList)
         self.command_blacklist = section_data.get(
@@ -144,6 +148,13 @@ class PermissionGroup:
 
     def validate(self):
         """ TODO """
+        if self.dm_command_whitelist:
+            self.dm_command_whitelist = set(
+                self.dm_command_whitelist.lower().split())
+        if self.dm_command_blacklist:
+            self.dm_command_blacklist = set(
+                self.dm_command_blacklist.lower().split())
+
         if self.command_whitelist:
             self.command_whitelist = set(
                 self.command_whitelist.lower().split())
