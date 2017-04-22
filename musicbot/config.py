@@ -98,13 +98,13 @@ class Config:
         self.debug_level = config.get(
             'MusicBot', 'DebugLevel', fallback=ConfigDefaults.debug_level)
         self.debug_level_str = self.debug_level
-        self.whitelist_file = config.get(
-            'Files', 'WhitelistFile', fallback=ConfigDefaults.whitelist_file)
         self.blacklist_file = config.get(
             'Files', 'BlacklistFile', fallback=ConfigDefaults.blacklist_file)
         self.auto_playlist_file = config.get(
             'Files', 'AutoPlaylistFile',
             fallback=ConfigDefaults.auto_playlist_file)
+        self.banned_file = config.get(
+            'Files', 'BannedFile', fallback=ConfigDefaults.banned_file)
         self.auto_playlist_removed_file = None
 
         self.run_checks()
@@ -200,11 +200,11 @@ class Config:
             if self.max_volume < 1:
                 LOG.warning("Max Volume is {}%, \
                 which is less than 1%, defaulting to 100%."
-                      .format(self.max_volume))
+                            .format(self.max_volume))
             elif self.max_volume > 1000:
                 LOG.warning("Max Volume is {}%, \
                 which is greater than 1000%, defaulting to 100%."
-                      .format(self.max_volume))
+                            .format(self.max_volume))
             self.max_volume = 100
 
         self.delete_invoking = self.delete_invoking and self.delete_messages
@@ -325,10 +325,10 @@ class Config:
     def find_autoplaylist(self):
         """ TODO """
         if not os.path.exists(self.auto_playlist_file):
-            if os.path.exists('config/_autoplaylist.txt'):
-                shutil.copy('config/_autoplaylist.txt',
+            if os.path.exists('config/example_autoplaylist.txt'):
+                shutil.copy('config/example_autoplaylist.txt',
                             self.auto_playlist_file)
-                LOG.debug("Copying _autoplaylist.txt to autoplaylist.txt")
+                LOG.debug("Copying example_autoplaylist.txt to autoplaylist.txt")
             else:
                 LOG.warning("No autoplaylist file found.")
 
@@ -364,10 +364,10 @@ class ConfigDefaults:
     debug_mode = False
     debug_level = 'INFO'
 
-    whitelist_file = 'config/whitelist.txt'
     blacklist_file = 'config/blacklist.txt'
     # TODO this will change when I add playlists
     auto_playlist_file = 'config/autoplaylist.txt'
+    banned_file = 'config/banned.txt'
     options_file = 'config/options.ini'
 
 
@@ -377,17 +377,3 @@ setattr(ConfigDefaults, codecs.decode(
     b'cGFzc3dvcmQ=', '\x62\x61\x73\x65\x36\x34').decode('ascii'), None)
 setattr(ConfigDefaults, codecs.decode(
     b'dG9rZW4=', '\x62\x61\x73\x65\x36\x34').decode('ascii'), None)
-
-
-# TODO
-# These two are going to be wrappers for the id lists,
-# with add/remove/load/save functions
-# and id/object conversion so types aren't an issue
-class Blacklist:
-    """ TODO """
-    pass
-
-
-class Whitelist:
-    """ TODO """
-    pass
