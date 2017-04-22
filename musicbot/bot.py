@@ -2428,12 +2428,12 @@ class MusicBot(discord.Client):
                         "The next song will be played shortly. Please wait.")
                 else:
                     return Response(
-                        "Something odd is happening.  "
+                        "Something odd is happening. "
                         "You might want to restart the bot if it does \
                                 not start working.")
             else:
                 return Response(
-                    "Something strange is happening.  "
+                    "Something strange is happening. "
                     "You might want to restart the bot if it does \
                             not start working.")
 
@@ -2448,16 +2448,16 @@ class MusicBot(discord.Client):
                 await self._manual_delete_check(message)
 
                 return Response(
-                    'Your forced skip for **{}** was acknowledged. {}'.format(
+                    "Your forced skip for **{}** was acknowledged. {}".format(
                         now_playing,
-                        ' Next song coming up!' if player.playlist.peek() else ''
+                        " Next song coming up!" if player.playlist.peek() else ""
                     ),
                     reply=True,
                     delete_after=30
                 )
             else:
                 return Response(
-                    'You do not have permission to use this command!',
+                    "You do not have permission to use this command!",
                     reply=True,
                     delete_after=30
                 )
@@ -2481,10 +2481,10 @@ class MusicBot(discord.Client):
             if skips_remaining <= 0:
                 player.skip()  # check autopause stuff here
                 return Response(
-                    'your skip for **{}** was acknowledged.'
-                    '\nThe vote to skip has been passed.{}'.format(
+                    "Your skip for **{}** was acknowledged."
+                    "\nThe vote to skip has been passed.{}".format(
                         player.current_entry.title,
-                        ' Next song coming up!' if player.playlist.peek() else ''
+                        " Next song coming up!" if player.playlist.peek() else ""
                     ),
                     reply=True,
                     delete_after=20
@@ -2493,11 +2493,11 @@ class MusicBot(discord.Client):
                 # TODO: When a song gets skipped, delete the old x needed to skip
                 # messages
                 return Response(
-                    'Your skip for **{}** was acknowledged.'
-                    '\n**{}** more {} required to vote to skip this song.'.format(
+                    "Your skip for **{}** was acknowledged."
+                    "\n**{}** more {} required to vote to skip this song.".format(
                         player.current_entry.title,
                         skips_remaining,
-                        'person is' if skips_remaining == 1 else 'people are'
+                        "person is" if skips_remaining == 1 else "people are"
                     ),
                     reply=True,
                     delete_after=20
