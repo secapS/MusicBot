@@ -1572,6 +1572,19 @@ class MusicBot(discord.Client):
                 'Invalid URL provided:\n{}\n'.
                 format(server_link), expire_in=30)
 
+    async def cmd_broadcast(self, args, leftover_args):
+        """
+        Usage:
+            {command_prefix}broadcast message
+
+        Broadcasts a message to all servers default channels.
+        """
+        if leftover_args:
+            args = ' '.join([args, *leftover_args])
+
+        for s in self.servers:
+            await self.safe_send_message(s, args)
+
     async def cmd_play(self, player, channel, author, permissions,
                        leftover_args, song_url):
         """
