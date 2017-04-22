@@ -138,7 +138,7 @@ class Playlist(EventEmitter, Serializable):
 
         return removed_entry
 
-    async def promote_entry(self, position):
+    async def promote_entry(self, position=None):
         """
             Changes a songs position in the playlist.
             :param index: The index of the song to remove from the queue.

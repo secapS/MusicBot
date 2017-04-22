@@ -2401,7 +2401,7 @@ class MusicBot(discord.Client):
                        message,
                        permissions,
                        voice_channel,
-                       option):
+                       option=None):
         """
         Usage:
             {command_prefix}skip
@@ -2437,7 +2437,7 @@ class MusicBot(discord.Client):
                     "You might want to restart the bot if it does \
                             not start working.")
 
-        if option in ['f', 'force']:
+        if option is not None and option in ['f', 'force']:
             if author.id == self.config.owner_id \
                     or permissions.instaskip \
                     or author == player.current_entry.meta.get('author', None):
