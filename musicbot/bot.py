@@ -366,23 +366,55 @@ class MusicBot(discord.Client):
 
         return self.cached_app_info
 
+    async def add_to_autoplaylist(self,
+                                  song_url: str,
+                                  *,
+                                  ex: Exception=None,
+                                  write_to_ap=False):
+        """ TODO """
+        if song_url in self.autoplaylist:
+            LOG.debug(
+                "URL \"%s\" in autoplaylist, ignoring", song_url)
+            return False
+
+        async with self.aiolocks[self.add_to_autoplaylist.__name__]:
+            LOG.info("Adding song to autoplaylist: %s", song_url)
+            self.autoplaylist.append(song_url)
+
+            with open(self.config.autoplaylist_log_file, 'a',
+                      encoding='utf8') as file_:
+                file_.write(
+                    '# Entry added {ctime}\n'
+                    '# Reason: {ex}\n'
+                    '{url}\n\n{sep}\n\n'.format(
+                        ctime=time.ctime(),
+                        # 10 spaces to line up with # Reason:
+                        ex=str(ex).replace('\n', '\n#' + ' ' * 10),
+                        url=song_url,
+                        sep='#' * 32
+                    ))
+
+            if write_to_ap:
+                LOG.info("Updating autoplaylist")
+                write_file(self.config.autoplaylist_file, self.autoplaylist)
+                return True
+
     async def remove_from_autoplaylist(self,
                                        song_url: str,
                                        *,
                                        ex: Exception=None,
-                                       delete_from_ap=False):
+                                       write_to_ap=False):
         """ TODO """
         if song_url not in self.autoplaylist:
             LOG.debug(
                 "URL \"%s\" not in autoplaylist, ignoring", song_url)
-            return
+            return False
 
         async with self.aiolocks[self.remove_from_autoplaylist.__name__]:
             self.autoplaylist.remove(song_url)
-            LOG.info(
-                "Removing unplayable song from autoplaylist: %s", song_url)
+            LOG.info("Removing song from autoplaylist: %s", song_url)
 
-            with open(self.config.autoplaylist_removed_file, 'a',
+            with open(self.config.autoplaylist_log_file, 'a',
                       encoding='utf8') as file_:
                 file_.write(
                     '# Entry removed {ctime}\n'
@@ -395,9 +427,10 @@ class MusicBot(discord.Client):
                         sep='#' * 32
                     ))
 
-            if delete_from_ap:
+            if write_to_ap:
                 LOG.info("Updating autoplaylist")
                 write_file(self.config.autoplaylist_file, self.autoplaylist)
+                return True
 
     @ensure_appinfo
     async def generate_invite_link(self,
@@ -785,7 +818,7 @@ class MusicBot(discord.Client):
 
                     await self.remove_from_autoplaylist(song_url,
                                                         ex=error,
-                                                        delete_from_ap=True)
+                                                        write_to_ap=True)
                     continue
 
                 except Exception as error:
@@ -2227,7 +2260,7 @@ class MusicBot(discord.Client):
                 delete_after=30
             )
 
-    async def cmd_playlist(self, player, option, song_url=None):
+    async def cmd_playlist(self, player, author, option, song_url=None):
         """
         Usage:
             {command_prefix}playlist [ + | - | add | remove ]
@@ -2271,34 +2304,23 @@ class MusicBot(discord.Client):
         if option in ['+', 'add']:
             # Verify song is not already in the playlist
             added = False
-
-            for url in self.autoplaylist:
-                if song_url != url:
-                    self.autoplaylist.append(song_url)
-                    write_file(self.config.autoplaylist_file, self.autoplaylist)
-                    self.autoplaylist = load_file(self.config.autoplaylist_file)
-                    added = True
-                    break
-
+            added = await self.add_to_autoplaylist(song_url,
+                                                   ex="User: %s added %s" % (author.name, title),
+                                                   write_to_ap=True)
             if added is True:
-                return Response("Added %s to autoplaylist." % title, delete_after=30)
+                return Response("Added `%s` to autoplaylist." % title, delete_after=30)
             else:
                 return Response("Song already present in autoplaylist.", delete_after=30)
 
         else:
             # Verify that the song is in our playlist
             removed = False
-
-            for url in self.autoplaylist:
-                if song_url == url:
-                    self.autoplaylist.remove(song_url)
-                    write_file(self.config.autoplaylist_file, self.autoplaylist)
-                    self.autoplaylist = load_file(self.config.autoplaylist_file)
-                    removed = True
-                    break
+            removed = await self.remove_from_autoplaylist(song_url,
+                                                          ex="User: %s removed %s" % (author.name, title),
+                                                          write_to_ap=True)
 
             if removed is True:
-                return Response("Removed %s from the autoplaylist." % title, delete_after=30)
+                return Response("Removed `%s` from the autoplaylist." % title, delete_after=30)
             else:
                 return Response("Song not present in autoplaylist.", delete_after=30)
 
