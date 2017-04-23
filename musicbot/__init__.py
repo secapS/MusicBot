@@ -66,7 +66,7 @@ class Yikes:
             "See %s for why requests is not suitable for this code."
             % "[https://discordpy.readthedocs.io/en/latest/faq.html#what-does-blocking-mean]",
 
-            "Don't use requests, use aiohttp instead.  The api is very similar to requests "
+            "Don't use requests, use aiohttp instead. The api is very similar to requests "
             "when using session objects. [http://aiohttp.readthedocs.io/en/stable/]  If "
             "a module you're trying to use depends on requests, see if you can find a similar "
             "module compatable with asyncio.  If you can't find one, learn how to avoid blocking "
@@ -87,9 +87,9 @@ __all__ = ['MusicBot']
 
 logging.setLogRecordFactory(BetterLogRecord)
 
-_FUNC_PROTOTYPE = "def {logger_func_name}(self, message, *args, **kwargs):\n" \
-                  "    if self.isEnabledFor({levelname}):\n" \
-                  "        self._log({levelname}, message, args, **kwargs)"
+_FUNC_PROTOTYPE = """def {logger_func_name}(self, message, *args, **kwargs):\n
+                      if self.isEnabledFor({levelname}):\n
+                          self._log({levelname}, message, args, **kwargs)"""
 
 
 def _add_logger_level(levelname, level, *, func_name=None):
@@ -127,9 +127,9 @@ LOG.setLevel(logging.EVERYTHING)
 FH = logging.FileHandler(
     filename='logs/musicbot.log', encoding='utf-8', mode='a')
 FH.setFormatter(logging.Formatter(
-    "[{relativeCreated:.16f}] {asctime} - {levelname} - {name} | "
-    "In {filename}::{threadName}({thread}), \
-    line {lineno} in {funcName}: {message}",
+    """[{relativeCreated:.16f}] {asctime} - {levelname} - {name} | 
+    In {filename}::{threadName}({thread}), 
+    line {lineno} in {funcName}: {message}""",
     style='{'
 ))
 LOG.addHandler(FH)

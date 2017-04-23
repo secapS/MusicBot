@@ -64,7 +64,7 @@ class BasePlaylistEntry(Serializable):
 
     def _for_each_future(self, callback):
         """
-            Calls `callback` for each future that is not cancelled. \
+            Calls `callback` for each future that is not cancelled.
             Absorbs and logs any errors that may have occurred.
         """
         futures = self._waiting_futures

@@ -60,11 +60,11 @@ class Playlist(EventEmitter, Serializable):
                 self.loop, song_url, download=False)
         except Exception as error:
             raise ExtractionError(
-                'Could not extract information from %s\n\n%s' % (song_url, error))
+                "Could not extract information from %s\n\n%s" % (song_url, error))
 
         if not info:
             raise ExtractionError(
-                'Could not extract information from %s' % song_url)
+                "Could not extract information from %s" % song_url)
 
         # TODO: Sort out what happens next when this happens
         if info.get('_type', None) == 'playlist':
@@ -209,8 +209,8 @@ class Playlist(EventEmitter, Serializable):
                     raise ExtractionError("Unknown error: {}".format(error))
 
             except Exception as error:
-                LOG.error('Could not extract information from {} ({}), \
-                falling back to direct'.format(song_url, error), exc_info=True)
+                LOG.error("""Could not extract information from %s (%s), 
+                falling back to direct""", (song_url, error), exc_info=True)
 
         dest_url = song_url
         if info.get('extractor'):
@@ -241,8 +241,8 @@ class Playlist(EventEmitter, Serializable):
 
             Returns a list of `entries` that have been enqueued.
 
-            :param playlist_url: The playlist url to be cut into individual \
-            urls and added to the playlist
+            :param playlist_url: The playlist url to be cut into individual 
+            urls and added to the playlist.
             :param meta: Any additional metadata to add to the playlist entry
         """
         position = len(self.entries) + 1
@@ -252,11 +252,11 @@ class Playlist(EventEmitter, Serializable):
             info = await self.downloader.safe_extract_info(
                 self.loop, playlist_url, download=False)
         except Exception as error:
-            raise ExtractionError('Could not extract information from %s\n\n%s' % (playlist_url, error))
+            raise ExtractionError("Could not extract information from %s\n\n%s" % (playlist_url, error))
 
         if not info:
             raise ExtractionError(
-                'Could not extract information from %s' % playlist_url)
+                "Could not extract information from %s" % playlist_url)
 
         # Once again, the generic extractor fucks things up.
         if info.get('extractor', None) == 'generic':
@@ -294,11 +294,11 @@ class Playlist(EventEmitter, Serializable):
 
     async def async_process_youtube_playlist(self, playlist_url, **meta):
         """
-            Processes youtube playlists links from `playlist_url` \
+            Processes youtube playlists links from `playlist_url`
             in a questionable, async fashion.
 
-            :param playlist_url: The playlist url to be cut into \
-            individual urls and added to the playlist
+            :param playlist_url: The playlist url to be cut into
+            individual urls and added to the playlist.
             :param meta: Any additional metadata to add to the playlist entry
         """
 
@@ -307,11 +307,11 @@ class Playlist(EventEmitter, Serializable):
                 self.loop, playlist_url, download=False, process=False)
         except Exception as error:
             raise ExtractionError(
-                'Could not extract information from %s\n\n%s' % (playlist_url, error))
+                "Could not extract information from %s\n\n%s" % (playlist_url, error))
 
         if not info:
             raise ExtractionError(
-                'Could not extract information from %s' % playlist_url)
+                "Could not extract information from %s" % playlist_url)
 
         gooditems = []
         baditems = 0
@@ -341,11 +341,11 @@ class Playlist(EventEmitter, Serializable):
 
     async def async_process_sc_bc_playlist(self, playlist_url, **meta):
         """
-            Processes soundcloud set and bancdamp album links from \
+            Processes soundcloud set and bancdamp album links from 
             `playlist_url` in a questionable, async fashion.
 
-            :param playlist_url: The playlist url to be cut into \
-            individual urls and added to the playlist
+            :param playlist_url: The playlist url to be cut into 
+            individual urls and added to the playlist.
             :param meta: Any additional metadata to add to the playlist entry
         """
 
@@ -354,11 +354,11 @@ class Playlist(EventEmitter, Serializable):
                 self.loop, playlist_url, download=False, process=False)
         except Exception as error:
             raise ExtractionError(
-                'Could not extract information from %s\n\n%s' % (playlist_url, error))
+                "Could not extract information from %s\n\n%s" % (playlist_url, error))
 
         if not info:
             raise ExtractionError(
-                'Could not extract information from %s' % playlist_url)
+                "Could not extract information from %s" % playlist_url)
 
         gooditems = []
         baditems = 0
@@ -398,10 +398,10 @@ class Playlist(EventEmitter, Serializable):
 
     async def get_next_entry(self, predownload_next=True):
         """
-            A coroutine which will return the next song or \
+            A coroutine which will return the next song or 
             None if no songs left to play.
 
-            Additionally, if predownload_next is set to True, \
+            Additionally, if predownload_next is set to True, 
             it will attempt to download the next
             song to be played - so that it's ready by the time we get to it.
         """

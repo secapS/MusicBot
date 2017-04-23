@@ -105,7 +105,7 @@ class Config:
             fallback=ConfigDefaults.autoplaylist_file)
         self.banned_file = config.get(
             'Files', 'BannedFile', fallback=ConfigDefaults.banned_file)
-        self.autoplaylist_removed_file = None
+        self.autoplaylist_log_file = None
 
         self.run_checks()
 
@@ -217,8 +217,8 @@ class Config:
 
         ap_path, ap_name = os.path.split(self.autoplaylist_file)
         apn_name, apn_ext = os.path.splitext(ap_name)
-        self.autoplaylist_removed_file = os.path.join(
-            ap_path, apn_name + '_removed' + apn_ext)
+        self.autoplaylist_log_file = os.path.join(
+            ap_path, apn_name + '_log' + apn_ext)
 
         if hasattr(logging, self.debug_level.upper()):
             self.debug_level = getattr(logging, self.debug_level.upper())
@@ -285,11 +285,11 @@ class Config:
 
             else:
                 raise HelpfulError(
-                    "Your config files are missing.  Neither options.ini nor "
+                    "Your config files are missing. Neither options.ini nor "
                     "example_options.ini were found.",
                     "Grab the files back from the archive or remake them "
                     "yourself and copy paste the content "
-                    "from the repo.  Stop removing important files!"
+                    "from the repo. Stop removing important files!"
                 )
 
         if not config.read(self.config_file, encoding='utf-8'):
@@ -303,16 +303,16 @@ class Config:
                 if not int(config.get('Permissions', 'OwnerID', fallback=0)):
                     print(flush=True)
                     LOG.critical(
-                        "Please configure config/options.ini \
-                        and re-run the bot.")
+                        """Please configure config/options.ini 
+                        and re-run the bot.""")
                     sys.exit(1)
 
             except ValueError:  # Config id value was changed but its not valid
                 raise HelpfulError(
                     'Invalid value "{}" for OwnerID, config cannot be loaded.'
                     .format(config.get('Permissions', 'OwnerID', fallback=None)),
-                    "The OwnerID option takes a user id, \
-                    fuck it i'll finish this message later."
+                    """The OwnerID option takes a user id, 
+                    fuck it i'll finish this message later."""
                 )
 
             except Exception as error:

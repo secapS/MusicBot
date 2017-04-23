@@ -159,12 +159,12 @@ class MusicPlayer(EventEmitter, Serializable):
         if not self.bot.config.save_videos and entry:
             if any([entry.filename == e.filename for e in
                     self.playlist.entries]):
-                LOG.debug("[Config:SaveVideos] Skipping deletion, \
-                    found song in queue")
+                LOG.debug("""[Config:SaveVideos] Skipping deletion, 
+                    found song in queue""")
             elif entry.filename == self._current_entry.filename:
                 LOG.debug(
-                    "[Config:SaveVideos] Skipping deletion, \
-                    song removed from queue is currently playing")
+                    """[Config:SaveVideos] Skipping deletion, 
+                    song removed from queue is currently playing""")
             else:
                 # LOG.debug("[Config:SaveVideos] Deleting file: %s" % \
                 # os.path.relpath(entry.filename))
@@ -208,7 +208,7 @@ class MusicPlayer(EventEmitter, Serializable):
             self._kill_current_player()
             return
 
-        raise ValueError('Cannot resume playback from state %s' % self.state)
+        raise ValueError("Cannot resume playback from state %s" % self.state)
 
     def pause(self):
         """ TODO """
@@ -224,7 +224,7 @@ class MusicPlayer(EventEmitter, Serializable):
         elif self.is_paused:
             return
 
-        raise ValueError('Cannot pause a MusicPlayer in state %s' % self.state)
+        raise ValueError("Cannot pause a MusicPlayer in state %s" % self.state)
 
     def repeat(self):
         """ TODO """
@@ -317,8 +317,8 @@ class MusicPlayer(EventEmitter, Serializable):
                 LOG.error("Error trying to delete %s", filename, exc_info=True)
                 break
         else:
-            LOG.debug("[Config:SaveVideos] Could not delete file %s, \
-            giving up and moving on", os.path.relpath(filename))
+            LOG.debug("""[Config:SaveVideos] Could not delete file %s, 
+            giving up and moving on""", os.path.relpath(filename))
 
     def play(self, _continue=False):
         """ TODO """
@@ -357,7 +357,7 @@ class MusicPlayer(EventEmitter, Serializable):
                 # aoptions = "-vn -b:a 192k"
                 aoptions = "-vn"
 
-                LOG.ffmpeg("Creating player with options: {} {} {}".format(
+                LOG.ffmpeg("Creating player with options: %s %s %s" % (
                     boptions, aoptions, entry.filename))
 
                 self._current_player = self._monkeypatch_player(
@@ -571,7 +571,7 @@ def filter_stderr(popen: subprocess.Popen, future: asyncio.Future):
     while True:
         data = popen.stderr.readline()
         if data:
-            LOG.ffmpeg("Data from ffmpeg: {}".format(data))
+            LOG.ffmpeg("Data from ffmpeg: %s", data)
             try:
                 if check_stderr(data):
                     sys.stderr.buffer.write(data)

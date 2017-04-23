@@ -204,10 +204,10 @@ def sanity_checks(optional=True):
     LOG.info("Starting sanity checks")
     # Required
 
-    # Make sure we're on python3.5+
+    # Make sure we are on python3.5+
     req_ensure_py3()
 
-    # Fix windows encoding fuckery
+    # Fix windows encoding issues
     req_ensure_encoding()
 
     # Make sure we're in a writeable env
@@ -285,7 +285,7 @@ def req_ensure_encoding():
     if sys.platform.startswith('win') or \
             sys.stdout.encoding.replace('-', '').lower() != 'utf8':
         LOG.info("Setting console encoding to UTF-8")
-        
+
         import io
         sys.stdout = io.TextIOWrapper(
             sys.stdout.detach(), encoding='utf8', line_buffering=True)
@@ -299,7 +299,7 @@ def req_ensure_encoding():
 
 def req_ensure_env():
     """ TODO """
-    LOG.info("Ensuring we're in the right folder")
+    LOG.info("Ensuring we are in the right folder")
 
     try:
         assert os.path.isdir('config'), 'folder "config" not found'
@@ -337,8 +337,8 @@ def req_ensure_folders():
 def opt_check_disk_space(warnlimit_mb=200):
     """ TODO """
     if disk_usage('.').free < warnlimit_mb * 1024 * 2:
-        LOG.warning("Less than %sMB of free space remains \
-            on this device", warnlimit_mb)
+        LOG.warning("""Less than %sMB of free space remains 
+            on this device""", warnlimit_mb)
 
 
 #################################################

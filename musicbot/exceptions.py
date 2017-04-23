@@ -74,10 +74,10 @@ class HelpfulError(MusicbotException):
         self.preface = preface
         self.footnote = footnote
         self.expire_in = expire_in
-        self._message_fmt = "\n{preface} \
-                             \n{problem} \
-                             \n\n{solution} \
-                             \n\n{footnote}"
+        self._message_fmt = """\n{preface}
+                             \n{problem}
+                             \n\n{solution}
+                             \n\n{footnote}"""
 
     @property
     def message(self):
