@@ -397,6 +397,7 @@ class MusicBot(discord.Client):
             if write_to_ap:
                 LOG.info("Updating autoplaylist")
                 write_file(self.config.autoplaylist_file, self.autoplaylist)
+                self.autoplaylist = load_file(self.config.autoplaylist_file)
                 return True
 
     async def remove_from_autoplaylist(self,
@@ -430,6 +431,7 @@ class MusicBot(discord.Client):
             if write_to_ap:
                 LOG.info("Updating autoplaylist")
                 write_file(self.config.autoplaylist_file, self.autoplaylist)
+                self.autoplaylist = load_file(self.config.autoplaylist_file)
                 return True
 
     @ensure_appinfo
@@ -1503,6 +1505,7 @@ class MusicBot(discord.Client):
     async def cmd_id(self, author, user_mentions):
         """
         Usage:
+            {command_prefix}id
             {command_prefix}id [@user]
 
         Tells the user their id or the id of another user.
@@ -2717,7 +2720,7 @@ class MusicBot(discord.Client):
         Usage:
             {command_prefix}queue
 
-        Prints the current song queue.
+        Prints the queued songs.
         """
 
         lines = []
