@@ -10,5 +10,6 @@ musicbot/lib/__pycache__/
 circle.yml
 Dockerfile
 
+.git/
 .idea/
 .vscode/
