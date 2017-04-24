@@ -2311,7 +2311,7 @@ class MusicBot(discord.Client):
                                                    ex="User: %s added %s" % (author.name, title),
                                                    write_to_ap=True)
             if added is True:
-                return Response("Added `%s` to autoplaylist." % title, delete_after=30)
+                return Response("Added **%s** to autoplaylist." % title, delete_after=30)
             else:
                 return Response("Song already present in autoplaylist.", delete_after=30)
 
@@ -2323,7 +2323,7 @@ class MusicBot(discord.Client):
                                                           write_to_ap=True)
 
             if removed is True:
-                return Response("Removed `%s` from the autoplaylist." % title, delete_after=30)
+                return Response("Removed **%s** from the autoplaylist." % title, delete_after=30)
             else:
                 return Response("Song not present in autoplaylist.", delete_after=30)
 
