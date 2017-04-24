@@ -337,9 +337,17 @@ def req_ensure_folders():
 def opt_check_disk_space(warnlimit_mb=200):
     """ TODO """
     if disk_usage('.').free < warnlimit_mb * 1024 * 2:
-        LOG.warning("""Less than %sMB of free space remains 
+        LOG.warning("""Less than %sMB of free space remains
             on this device""", warnlimit_mb)
 
+
+def ensure_files():
+    """ TODO """
+    if os.path.isfile('config/options.ini') is False and \
+     os.path.isfile('config/permissions.ini') is False:
+        LOG.critical("""MISSING config/options.ini and config/permissions.ini!\n
+            Either cp the config folder into the container or mount is as a volume!""")
+        return True
 
 #################################################
 
@@ -372,6 +380,10 @@ def main():
     max_wait_time = 60
 
     while tryagain:
+        if ensure_files():
+            tryagain = False
+            break
+
         # Maybe I need to try to import stuff first, then actually import stuff
         # It'd save me a lot of pain with all that awful exception type
         # checking

@@ -2515,11 +2515,8 @@ class MusicBot(discord.Client):
             # TODO: ignore person if they're deaf or
             # take them out of the list or something?
             # Currently is recounted if they vote, deafen, then vote
-            info = await self.application_info()
-
             num_voice = sum(1 for m in voice_channel.voice_members if not (
-                m.deaf or m.self_deaf or m.id == info.id))
-                #TODO m.deaf or m.self_deaf or m.id in [self.user.id]))
+                m.deaf or m.self_deaf or m.id in [self.user.id]))
 
             num_skips = player.skip_state.add_skipper(author.id, message)
 
