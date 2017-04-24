@@ -69,7 +69,7 @@ class Yikes:
             "Don't use requests, use aiohttp instead. The api is very similar to requests "
             "when using session objects. [http://aiohttp.readthedocs.io/en/stable/]  If "
             "a module you're trying to use depends on requests, see if you can find a similar "
-            "module compatable with asyncio.  If you can't find one, learn how to avoid blocking "
+            "module compatible with asyncio.  If you can't find one, learn how to avoid blocking "
             "in coroutines.  If you're new to programming, consider learning more about how "
             "asynchronous code and coroutines work. Blocking calls (notably HTTP requests) can take"
             "a long time, during which the bot is unable to do anything but wait for it.  "
