@@ -48,7 +48,7 @@ class MusicBot(discord.Client):
     """ TODO """
     def __init__(self, config_file=None, perms_file=None):
         if config_file is None:
-            config_file = ConfigDefaults.options_file
+            config_file = ConfigDefaults.config_file
 
         if perms_file is None:
             perms_file = PermissionsDefaults.perms_file
@@ -1208,7 +1208,7 @@ class MusicBot(discord.Client):
             # Add if token, else
             raise exceptions.HelpfulError(
                 "Bot cannot login, bad credentials.",
-                "Fix your %s in the options file.  "
+                "Fix your %s in the config.ini file.  "
                 "Remember that each field should be on their own line."
                 % ['shit', 'Token', 'Email/Password',
                    'Credentials'][len(self.config.auth)]

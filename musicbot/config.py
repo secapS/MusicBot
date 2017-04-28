@@ -159,8 +159,7 @@ class Config:
                         "The ID should be just a number, approximately "
                         "18 characters long.  "
                         "If you don't know what your ID is, read the "
-                        "instructions in the options or ask in the "
-                        "help server.",
+                        "instructions in the config.ini file.",
                         preface=self._confpreface
                     )
 
@@ -231,12 +230,12 @@ class Config:
 
         self.debug_mode = self.debug_level <= logging.DEBUG
 
-    # TODO: Add save function for future editing of options with commands
+    # TODO: Add save function for future editing of config with commands
     #       Maybe add warnings about fields missing from the config file
 
     async def async_validate(self, bot):
         """ TODO """
-        LOG.debug("Validating options...")
+        LOG.debug("Validating config...")
 
         if self.owner_id == 'auto':
             if not bot.user.bot:
@@ -278,15 +277,15 @@ class Config:
                          you should probably turn file extensions on."
                          .format(self.config_file + '.ini', self.config_file))
 
-            elif os.path.isfile('config/example_options.ini'):
-                shutil.copy('config/example_options.ini', self.config_file)
+            elif os.path.isfile('config/example_config.ini'):
+                shutil.copy('config/example_config.ini', self.config_file)
                 LOG.warning(
-                    'Options file not found, copying example_options.ini')
+                    'Config file not found, copying example_config.ini')
 
             else:
                 raise HelpfulError(
-                    "Your config files are missing. Neither options.ini nor "
-                    "example_options.ini were found.",
+                    "Your config files are missing. Neither config.ini nor "
+                    "example_config.ini were found.",
                     "Grab the files back from the archive or remake them "
                     "yourself and copy paste the content "
                     "from the repo. Stop removing important files!"
@@ -303,7 +302,7 @@ class Config:
                 if not int(config.get('Permissions', 'OwnerID', fallback=0)):
                     print(flush=True)
                     LOG.critical(
-                        """Please configure config/options.ini 
+                        """Please configure config/config.ini
                         and re-run the bot.""")
                     sys.exit(1)
 
@@ -311,14 +310,14 @@ class Config:
                 raise HelpfulError(
                     'Invalid value "{}" for OwnerID, config cannot be loaded.'
                     .format(config.get('Permissions', 'OwnerID', fallback=None)),
-                    """The OwnerID option takes a user id, 
+                    """The OwnerID option takes a user id,
                     fuck it i'll finish this message later."""
                 )
 
             except Exception as error:
                 print(flush=True)
                 LOG.critical(
-                    "Unable to copy config/example_options.ini to %s",
+                    "Unable to copy config/example_config.ini to %s",
                     self.config_file, exc_info=error)
                 sys.exit(2)
 
@@ -368,7 +367,7 @@ class ConfigDefaults:
     # TODO this will change when I add playlists
     autoplaylist_file = 'config/autoplaylist.txt'
     banned_file = 'config/banned.txt'
-    options_file = 'config/options.ini'
+    config_file = 'config/config.ini'
 
 
 setattr(ConfigDefaults, codecs.decode(

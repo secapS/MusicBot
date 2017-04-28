@@ -343,9 +343,9 @@ def opt_check_disk_space(warnlimit_mb=200):
 
 def ensure_files():
     """ TODO """
-    if os.path.isfile('config/options.ini') is False and \
+    if os.path.isfile('config/config.ini') is False and \
      os.path.isfile('config/permissions.ini') is False:
-        LOG.critical("""MISSING config/options.ini and config/permissions.ini!\n
+        LOG.critical("""MISSING config/config.ini and config/permissions.ini!\n
             Either cp the config folder into the container or mount is as a volume!""")
         return True
 
