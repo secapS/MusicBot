@@ -20,8 +20,8 @@ Commands are listed [here](https://github.com/DiscordMusicBot/MusicBot/wiki/Comm
 The main configuration file is called `config/options.ini` and the permissions file is called `config/permissions.ini` by default they do not exist.
 
 Read the following Wiki pages to on how to create them:
-- [Options]https://github.com/DiscordMusicBot/MusicBot/wiki/Configuration)
-- [Permissions]https://github.com/DiscordMusicBot/MusicBot/wiki/Permissions)
+- [Options](https://github.com/DiscordMusicBot/MusicBot/wiki/Configuration)
+- [Permissions](https://github.com/DiscordMusicBot/MusicBot/wiki/Permissions)
 
 
 ### FAQ
