@@ -4,26 +4,25 @@
 MusicBot is a Discord music bot written in [Python](https://www.python.org "Python homepage").
 It plays requested songs and if the queue becomes empty it will play through a list of existing songs.
 
-### How do I set it up?
+DiscordMusicBots variant of MusicBot got more features and is build to run inside a Docker container to achieve as light a footprint as possible and simplified deployment.
+Hence the Docker images are based on Alpine Linux.
 
-- [Windows Tutorial](https://github.com/Just-Some-Bots/MusicBot/wiki/Guide-for-Windows "Windows instructions")
-- [Linux Tutorial](https://github.com/Just-Some-Bots/MusicBot/wiki/Guide-for-Ubuntu "Linux instructions")
-- [OSX Tutorial](https://github.com/Just-Some-Bots/MusicBot/wiki/Guide-for-OSX)
-- [Raspbian Tutorial](https://github.com/Just-Some-Bots/MusicBot/wiki/Guide-for-Raspbian)
-- [Debian Tutorial](https://github.com/Just-Some-Bots/MusicBot/wiki/Guide-for-Debian)
-- [Docker Tutorial](https://github.com/Just-Some-Bots/MusicBot/wiki/Guide-for-Docker)
+
+### Getting started
+Find the correct instruction on the [Wiki](https://github.com/DiscordMusicBot/MusicBot/wiki)
 
 
 ### Commands
+Commands are listed [here](https://github.com/DiscordMusicBot/MusicBot/wiki/Commands "Commands list").
 
-Commands are listed [here](https://github.com/Just-Some-Bots/MusicBot/wiki/Commands "Commands list").
 
 ### Configuration
+The main configuration file is called `config/options.ini` and the permissions file is called `config/permissions.ini` by default they do not exist.
 
-The main configuration file is `config/options.ini`, but is not included.
-Simply make a copy of `example_options.ini` and rename to `options.ini`.  See `example_options.ini` for more information on how to configure it.
+Read the following Wiki pages to on how to create them:
+- [Options]https://github.com/DiscordMusicBot/MusicBot/wiki/Configuration)
+- [Permissions]https://github.com/DiscordMusicBot/MusicBot/wiki/Permissions)
 
 
 ### FAQ
-
-Some frequently asked questions are listed on the wiki [here](https://github.com/Just-Some-Bots/MusicBot/wiki/FAQ "Wiki").
+Some frequently asked questions are listed [here](https://github.com/DiscordMusicBot/MusicBot/wiki/FAQ).
