@@ -329,7 +329,7 @@ class MusicBot(discord.Client):
 
             elif channel:
                 LOG.warning(
-                    """Not joining {0.server.name}/{0.name}, 
+                    """Not joining {0.server.name}/{0.name},
                     that's a text channel."""
                     .format(channel))
 
@@ -678,7 +678,7 @@ class MusicBot(discord.Client):
 
                 if player:
                     LOG.debug(
-                        """Created player via deserialization for server 
+                        """Created player via deserialization for server
                         %s with %s entries""", server.id, len(
                             player.playlist))
                     # Since deserializing only happens when the bot starts, I
@@ -793,7 +793,7 @@ class MusicBot(discord.Client):
                 random.shuffle(self.autoplaylist)
                 if len(self.song_list) == 0:
                     LOG.debug(
-                        """All songs have been played. 
+                        """All songs have been played.
                         Restarting auto playlist...""")
                     self.song_list = self.autoplaylist[:]
                 song_url = random.choice(self.song_list)
@@ -1111,13 +1111,13 @@ class MusicBot(discord.Client):
         except discord.Forbidden:
             if not quiet:
                 self.safe_print(
-                    """Warning: Cannot send message or file to %s, 
+                    """Warning: Cannot send message or file to %s,
                     no permission""" % dest.name)
 
         except discord.NotFound:
             if not quiet:
                 self.safe_print(
-                    """Warning: Cannot send message or file to %s, 
+                    """Warning: Cannot send message or file to %s,
                     invalid channel?""" % dest.name)
 
         return msg
@@ -1304,11 +1304,11 @@ class MusicBot(discord.Client):
             LOG.warning("Owner unknown, bot is not on any servers.")
             if self.user.bot:
                 LOG.warning(
-                    """To make the bot join a server, 
+                    """To make the bot join a server,
                     paste this link in your browser. \n
-                    Note: You should be logged into your main account 
+                    Note: You should be logged into your main account
                     and have \n
-                    manage server permissions on the server you want 
+                    manage server permissions on the server you want
                     the bot to join.\n"""
                     "  " + await self.generate_invite_link()
                 )
@@ -3169,14 +3169,14 @@ class MusicBot(discord.Client):
                 process=True,    # ASYNC LAMBDAS WHEN
                 on_error=lambda e: asyncio.ensure_future(
                     self.safe_send_message(channel, "```\n%s\n```" % e,
-                                        expire_in=120),
+                                           expire_in=120),
                     loop=self.loop),
                 retry_on_error=True
             )
 
             if not info:
                 raise exceptions.CommandError(
-                    """Error extracting info from search string, 
+                    """Error extracting info from search string,
                     youtubedl returned no data.\n
                     You may need to restart the bot if this continues to happen.""",
                     expire_in=30
@@ -3217,7 +3217,7 @@ class MusicBot(discord.Client):
                     song_url, channel=channel, author=author)
                 await self.safe_send_message(
                     channel,
-                    """Enqueued **%s** to be played. 
+                    """Enqueued **%s** to be played.
                 Position in queue: Up next!""" % entry.title,
                     expire_in=20)
                 # Get the song ready now, otherwise race condition where
@@ -3234,7 +3234,7 @@ class MusicBot(discord.Client):
 
                 if self.config.debug_mode:
                     LOG.info(
-                        """Assumed url `%s` was a single entry, was actually a 
+                        """Assumed url `%s` was a single entry, was actually a
                         playlist""" % song_url)
                     LOG.info("Using `%s` instead" % e.use_url)
 
