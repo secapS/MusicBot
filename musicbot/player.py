@@ -91,7 +91,7 @@ class PatchedBuff:
         print(outstr.ljust(terminal_size - 1), end='\r')
 
 
-class MusicPlayerState(Enum):
+class PlayerState(Enum):
     """ TODO """
     STOPPED = 0  # When the player isn't playing anything
     PLAYING = 1  # Player is actively playing music
@@ -103,7 +103,7 @@ class MusicPlayerState(Enum):
         return self.name
 
 
-class MusicPlayerRepeatState(Enum):
+class PlayerRepeatState(Enum):
     """ TODO """
     NONE = 0    # Playlist plays as normal
     ALL = 1     # Entire playlist repeats
@@ -113,8 +113,8 @@ class MusicPlayerRepeatState(Enum):
         return self.name
 
 
-class MusicPlayer(EventEmitter, Serializable):
-    """ TODO """
+class Player(EventEmitter, Serializable):
+    """ A play manages the FFMPEG player instance and all that is associated with it. """
 
     def __init__(self, bot, voice_client, playlist):
         super().__init__()
@@ -123,10 +123,10 @@ class MusicPlayer(EventEmitter, Serializable):
         self.voice_client = voice_client
         self.playlist = playlist
         self.deliberately_killed = False
-        self.state = MusicPlayerState.STOPPED
+        self.state = PlayerState.STOPPED
         self.skip_state = None
         self._volume = bot.config.default_volume
-        self.repeat_state = MusicPlayerRepeatState.NONE
+        self.repeat_state = PlayerRepeatState.NONE
         self.skip_repeat = False
         self._play_lock = asyncio.Lock()
         self._current_player = None
@@ -190,7 +190,7 @@ class MusicPlayer(EventEmitter, Serializable):
 
     def stop(self):
         """ TODO """
-        self.state = MusicPlayerState.STOPPED
+        self.state = PlayerState.STOPPED
         self._kill_current_player()
 
         self.emit('stop', player=self)
@@ -199,12 +199,12 @@ class MusicPlayer(EventEmitter, Serializable):
         """ TODO """
         if self.is_paused and self._current_player:
             self._current_player.resume()
-            self.state = MusicPlayerState.PLAYING
+            self.state = PlayerState.PLAYING
             self.emit('resume', player=self, entry=self.current_entry)
             return
 
         if self.is_paused and not self._current_player:
-            self.state = MusicPlayerState.PLAYING
+            self.state = PlayerState.PLAYING
             self._kill_current_player()
             return
 
@@ -213,7 +213,7 @@ class MusicPlayer(EventEmitter, Serializable):
     def pause(self):
         """ TODO """
         if self.is_playing:
-            self.state = MusicPlayerState.PAUSED
+            self.state = PlayerState.PAUSED
 
             if self._current_player:
                 self._current_player.pause()
@@ -224,23 +224,23 @@ class MusicPlayer(EventEmitter, Serializable):
         elif self.is_paused:
             return
 
-        raise ValueError("Cannot pause a MusicPlayer in state %s" % self.state)
+        raise ValueError("Cannot pause a Player in state %s" % self.state)
 
     def repeat(self):
         """ TODO """
         if self.is_repeat_none:
-            self.repeat_state = MusicPlayerRepeatState.ALL
+            self.repeat_state = PlayerRepeatState.ALL
             return
         if self.is_repeat_all:
-            self.repeat_state = MusicPlayerRepeatState.SINGLE
+            self.repeat_state = PlayerRepeatState.SINGLE
             return
         if self.is_repeat_single:
-            self.repeat_state = MusicPlayerRepeatState.NONE
+            self.repeat_state = PlayerRepeatState.NONE
             return
 
     def kill(self):
         """ TODO """
-        self.state = MusicPlayerState.DEAD
+        self.state = PlayerState.DEAD
         self.playlist.clear()
         self._events.clear()
         self._kill_current_player()
@@ -374,8 +374,8 @@ class MusicPlayer(EventEmitter, Serializable):
                 self._current_player.setDaemon(True)
                 self._current_player.buff.volume = self.volume
 
-                # I need to add ytdl hooks
-                self.state = MusicPlayerState.PLAYING
+                # TODO I need to add ytdl hooks
+                self.state = PlayerState.PLAYING
                 self._current_entry = entry
                 self._stderr_future = asyncio.Future()
 
@@ -418,8 +418,8 @@ class MusicPlayer(EventEmitter, Serializable):
             self._current_player.setDaemon(True)
             self._current_player.buff.volume = self.volume
 
-            # I need to add ytdl hooks
-            self.state = MusicPlayerState.PLAYING
+            # TODO I need to add ytdl hooks
+            self.state = PlayerState.PLAYING
             self._current_entry = entry
 
             self._current_player.start()
@@ -518,37 +518,37 @@ class MusicPlayer(EventEmitter, Serializable):
     @property
     def is_playing(self):
         """ TODO """
-        return self.state == MusicPlayerState.PLAYING
+        return self.state == PlayerState.PLAYING
 
     @property
     def is_paused(self):
         """ TODO """
-        return self.state == MusicPlayerState.PAUSED
+        return self.state == PlayerState.PAUSED
 
     @property
     def is_stopped(self):
         """ TODO """
-        return self.state == MusicPlayerState.STOPPED
+        return self.state == PlayerState.STOPPED
 
     @property
     def is_dead(self):
         """ TODO """
-        return self.state == MusicPlayerState.DEAD
+        return self.state == PlayerState.DEAD
 
     @property
     def is_repeat_none(self):
         """ TODO """
-        return self.repeat_state == MusicPlayerRepeatState.NONE
+        return self.repeat_state == PlayerRepeatState.NONE
 
     @property
     def is_repeat_all(self):
         """ TODO """
-        return self.repeat_state == MusicPlayerRepeatState.ALL
+        return self.repeat_state == PlayerRepeatState.ALL
 
     @property
     def is_repeat_single(self):
         """ TODO """
-        return self.repeat_state == MusicPlayerRepeatState.SINGLE
+        return self.repeat_state == PlayerRepeatState.SINGLE
 
     @property
     def progress(self):

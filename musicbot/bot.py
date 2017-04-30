@@ -28,7 +28,7 @@ from . import exceptions
 from . import downloader
 
 from .playlist import Playlist
-from .player import MusicPlayer
+from .player import Player
 from .entry import StreamPlaylistEntry
 from .opus_loader import load_opus_lib
 from .config import Config, ConfigDefaults
@@ -662,12 +662,12 @@ class MusicBot(discord.Client):
         # I hope I don't have to set the channel here
         # instead of waiting for the event to update it
 
-    def get_player_in(self, server: discord.Server) -> MusicPlayer:
+    def get_player_in(self, server: discord.Server) -> Player:
         """ TODO """
         return self.players.get(server.id)
 
     async def get_player(self, channel, create=False, *,
-                         deserialize=False) -> MusicPlayer:
+                         deserialize=False) -> Player:
         """ TODO """
         server = channel.server
 
@@ -695,7 +695,7 @@ class MusicBot(discord.Client):
                 voice_client = await self.get_voice_client(channel)
 
                 playlist = Playlist(self)
-                player = MusicPlayer(self, voice_client, playlist)
+                player = Player(self, voice_client, playlist)
                 self._init_player(player, server=server)
 
             async with self.aiolocks[self.reconnect_voice_client.__name__ + ':' + server.id]:
@@ -976,9 +976,9 @@ class MusicBot(discord.Client):
                                 voice_client,
                                 playlist=None,
                                 *,
-                                dir=None) -> MusicPlayer:
+                                dir=None) -> Player:
         """
-        Deserialize a saved queue for a server into a MusicPlayer.
+        Deserialize a saved queue for a server into a Player.
         If no queue is saved, returns None.
         """
 
@@ -997,7 +997,7 @@ class MusicBot(discord.Client):
             with open(dir, 'r', encoding='utf8') as file_:
                 data = file_.read()
 
-        return MusicPlayer.from_json(data, self, voice_client, playlist)
+        return Player.from_json(data, self, voice_client, playlist)
 
     @ensure_appinfo
     async def _on_ready_sanity_checks(self):
