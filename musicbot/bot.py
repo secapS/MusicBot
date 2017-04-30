@@ -2711,6 +2711,36 @@ class MusicBot(discord.Client):
             await player.playlist.add_entry(
                 song_url, channel=None, author=None)
 
+    async def cmd_history(self, channel, player, amount=10):
+        """
+        Usage:
+            {command_prefix}history
+            {command_prefix}history number
+
+        Prints by default the last 10 played songs.
+        If a value is given then that amount will be printed.
+        """
+        LOG.debug("TODO IMPLEMENT cmd_history")
+
+        # counter = 0
+
+        # for i, item in enumerate(player.playlist, 1):
+        #     if counter == amount:
+        #         break
+        #     elif item.meta.get('channel', False) and \
+        #             item.meta.get('author', False):
+        #         nextline = "`{}.` **{}** added by **{}**".format(
+        #             i, item.title, item.meta['author'].name).strip()
+        #     else:
+        #         nextline = "`{}.` **{}**".format(i, item.title).strip()
+
+        #     counter += 1
+
+        # message = '\n'.join(lines)
+        # return Response(message, delete_after=30)
+
+        # TODO implement cmd_history and required infrastructure.
+
     async def cmd_queue(self, channel, player):
         """
         Usage:
