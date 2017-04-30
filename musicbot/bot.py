@@ -656,7 +656,7 @@ class MusicBot(discord.Client):
             vchannel = self.get_channel(vchannel.id)
 
         if getattr(vchannel, 'type', ChannelType.text) != ChannelType.voice:
-            raise AttributeError('Channel passed must be a voice channel')
+            raise AttributeError("Channel passed must be a voice channel")
 
         await self.ws.voice_state(vchannel.server.id, vchannel.id, mute, deaf)
         # I hope I don't have to set the channel here
@@ -678,9 +678,8 @@ class MusicBot(discord.Client):
 
                 if player:
                     LOG.debug(
-                        """Created player via deserialization for server
-                        %s with %s entries""", server.id, len(
-                            player.playlist))
+                        "Created player via deserialization for server %s with %s entries", \
+                        server.id, len(player.playlist))
                     # Since deserializing only happens when the bot starts, I
                     # should never need to reconnect
                     return self._init_player(player, server=server)

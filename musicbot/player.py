@@ -159,11 +159,11 @@ class Player(EventEmitter, Serializable):
         if not self.bot.config.save_videos and entry:
             if any([entry.filename == e.filename for e in
                     self.playlist.entries]):
-                LOG.debug("""[Config:SaveVideos] Skipping deletion, 
+                LOG.debug("""[Config:SaveVideos] Skipping deletion,
                     found song in queue""")
             elif entry.filename == self._current_entry.filename:
                 LOG.debug(
-                    """[Config:SaveVideos] Skipping deletion, 
+                    """[Config:SaveVideos] Skipping deletion,
                     song removed from queue is currently playing""")
             else:
                 # LOG.debug("[Config:SaveVideos] Deleting file: %s" % \
@@ -317,7 +317,7 @@ class Player(EventEmitter, Serializable):
                 LOG.error("Error trying to delete %s", filename, exc_info=True)
                 break
         else:
-            LOG.debug("""[Config:SaveVideos] Could not delete file %s, 
+            LOG.debug("""[Config:SaveVideos] Could not delete file %s,
             giving up and moving on""", os.path.relpath(filename))
 
     def play(self, _continue=False):

@@ -20,7 +20,7 @@ LOG = logging.getLogger(__name__)
 
 class Playlist(EventEmitter, Serializable):
     """
-        A playlist is manages the list of songs that will be played.
+        A playlist manages the list of songs that will be played.
     """
 
     def __init__(self, bot):
@@ -209,7 +209,7 @@ class Playlist(EventEmitter, Serializable):
                     raise ExtractionError("Unknown error: {}".format(error))
 
             except Exception as error:
-                LOG.error("""Could not extract information from %s (%s), 
+                LOG.error("""Could not extract information from %s (%s),
                 falling back to direct""", (song_url, error), exc_info=True)
 
         dest_url = song_url
@@ -241,7 +241,7 @@ class Playlist(EventEmitter, Serializable):
 
             Returns a list of `entries` that have been enqueued.
 
-            :param playlist_url: The playlist url to be cut into individual 
+            :param playlist_url: The playlist url to be cut into individual
             urls and added to the playlist.
             :param meta: Any additional metadata to add to the playlist entry
         """
@@ -341,10 +341,10 @@ class Playlist(EventEmitter, Serializable):
 
     async def async_process_sc_bc_playlist(self, playlist_url, **meta):
         """
-            Processes soundcloud set and bancdamp album links from 
+            Processes soundcloud set and bancdamp album links from
             `playlist_url` in a questionable, async fashion.
 
-            :param playlist_url: The playlist url to be cut into 
+            :param playlist_url: The playlist url to be cut into
             individual urls and added to the playlist.
             :param meta: Any additional metadata to add to the playlist entry
         """
@@ -398,10 +398,10 @@ class Playlist(EventEmitter, Serializable):
 
     async def get_next_entry(self, predownload_next=True):
         """
-            A coroutine which will return the next song or 
+            A coroutine which will return the next song or
             None if no songs left to play.
 
-            Additionally, if predownload_next is set to True, 
+            Additionally, if predownload_next is set to True,
             it will attempt to download the next
             song to be played - so that it's ready by the time we get to it.
         """
