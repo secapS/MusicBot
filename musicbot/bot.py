@@ -3519,7 +3519,7 @@ class MusicBot(discord.Client):
             return
 
         # TODO private_msg_list should be added to permissions <---> check out user_permissions.command_whitelist
-        private_msg_list = ['joinserver', 'ban', 'reloadperm', 'setavatar', 'skip', 'restart']
+        private_msg_list = ['joinserver', 'ban', 'reloadperm', 'setavatar', 'restart', 'help']
         if message.channel.is_private:
             if not (message.author.id == self.config.owner_id and
                     command in private_msg_list):
