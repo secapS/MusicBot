@@ -10,11 +10,11 @@ dependencies:
 test:
   override:
     - docker run -d discordmusicbot/musicbot; sleep 10
-    # TODO Add READ tests - docker exec
+    # TODO Add REAL tests - docker exec
 
 deployment:
   hub:
     branch: review
     commands:
-      - docker login -e $DOCKER_EMAIL -u "$DOCKER_USER" -p "$DOCKER_PASS"
+      - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
       - docker push discordmusicbot/musicbot
