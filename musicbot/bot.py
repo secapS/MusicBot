@@ -2710,12 +2710,9 @@ class MusicBot(discord.Client):
         await self.safe_send_message(
             channel, "The autoplaylist is now " +
             ['disabled', 'enabled'][self.config.auto_playlist])
-        # if nothing is queued, start a song
-        if not player.playlist.entries and not player.current_entry and \
-                self.config.auto_playlist:
-            song_url = random.choice(self.autoplaylist)
-            await player.playlist.add_entry(
-                song_url, channel=None, author=None)
+        # if nothing is queued or playing, start a song
+        if not player.playlist.entries and not player.current_entry and self.config.auto_playlist:
+            await self.on_player_finished_playing(player)
 
     async def cmd_history(self, channel, player, amount=10):
         """
@@ -3732,8 +3729,8 @@ class MusicBot(discord.Client):
 
         ################################
 
-        LOG.voicedebug("""Voice state update for {mem.id}/{mem!s} on
-        {ser.name}/{vch.name} -> {dif}""".format
+        LOG.voicedebug("Voice state update for {mem.id}/{mem!s} on {ser.name}/{vch.name} -> {dif}"
+                       .format
                        (
                            mem=state.member,
                            ser=state.server,
