@@ -158,28 +158,6 @@ class Playlist(EventEmitter, Serializable):
             entry.get_ready_future()
         return entry
 
-    def remove_position(self, position):
-        """ TODO """
-        rot_dist = -1 * (position - 1)
-        self.entries.rotate(rot_dist)
-        entry = self.entries.popleft()
-        self.emit('entry-removed', playlist=self, entry=entry)
-        self.entries.rotate(-1 * rot_dist)
-
-        return entry
-
-    def remove_first(self):
-        """ TODO """
-        entry = self.entries.popleft()
-        self.emit('entry-removed', playlist=self, entry=entry)
-        entry_next = None
-        entry_next = self.peek()
-
-        if entry_next:
-            entry_next.get_ready_future()
-
-        return entry
-
     async def add_stream_entry(self, song_url, info=None, **meta):
         """ TODO """
         if info is None:
