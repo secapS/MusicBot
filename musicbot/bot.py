@@ -2492,14 +2492,12 @@ class MusicBot(discord.Client):
                     or permissions.instaskip \
                     or author == player.current_entry.meta.get('author', None):
 
-                now_playing = player.current_entry.title
-
                 player.skip()  # check autopause stuff here
                 await self._manual_delete_check(message)
 
                 return Response(
                     "your forced skip request for **{}** was acknowledged. {}".format(
-                        now_playing,
+                        player.current_entry.title,
                         " Next song coming up!" if player.playlist.peek() else ""
                     ),
                     reply=True,
