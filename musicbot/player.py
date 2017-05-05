@@ -131,6 +131,7 @@ class Player(EventEmitter, Serializable):
         self._play_lock = asyncio.Lock()
         self._current_player = None
         self._current_entry = None
+        self._previous_entry = None
         self._stderr_future = None
         self.playlist.on('entry-added', self.on_entry_added)
         self.playlist.on('entry-removed', self.on_entry_removed)
@@ -247,6 +248,7 @@ class Player(EventEmitter, Serializable):
 
     def _playback_finished(self):
         entry = self._current_entry
+        self._previous_entry = entry
         self._current_entry = None
         self._current_player = None
 
@@ -297,10 +299,13 @@ class Player(EventEmitter, Serializable):
                 self._current_player.stop()
             except OSError:
                 pass
+            
+            self._previous_entry = self._current_player
             self._current_player = None
-            return True
 
-        return False
+            return True
+        else:
+            return False
 
     async def _delete_file(self, filename):
         """ TODO """
@@ -514,6 +519,11 @@ class Player(EventEmitter, Serializable):
     def current_entry(self):
         """ TODO """
         return self._current_entry
+
+    @property
+    def previous_entry(self):
+        """ TODO """
+        return self._previous_entry
 
     @property
     def is_playing(self):

@@ -737,16 +737,6 @@ class MusicBot(discord.Client):
         thumbnail = entry.filename_thumbnail
 
         if channel and author:
-            last_np_msg = \
-                self.server_data[channel.server]['last_np_msg']
-            if last_np_msg and last_np_msg.channel == channel:
-
-                async for lmsg in self.logs_from(channel, limit=1):
-                    if lmsg != last_np_msg and last_np_msg:
-                        await self.safe_delete_message(last_np_msg)
-                        self.server_data[channel.server]['last_np_msg'] = None
-                    break  # This is probably redundant
-
             if self.config.now_playing_mentions:
                 newmsg = "%s - your song **%s** is now playing in %s!" % (
                     entry.meta['author'].mention,
@@ -786,6 +776,23 @@ class MusicBot(discord.Client):
 
     async def on_player_finished_playing(self, player, **_):
         """ TODO """
+        # Played song message deletion
+        entry = player.previous_entry
+        if entry is not None:
+            channel = entry.meta.get('channel', None)
+            author = entry.meta.get('author', None)
+
+            if channel and author:
+                last_np_msg = \
+                    self.server_data[channel.server]['last_np_msg']
+                if last_np_msg and last_np_msg.channel == channel:
+                    async for lmsg in self.logs_from(channel, limit=1):
+                        if lmsg != last_np_msg and last_np_msg:
+                            await self.safe_delete_message(last_np_msg)
+                            self.server_data[channel.server]['last_np_msg'] = None
+                        break  # This is probably redundant
+
+        # Auto playlist add song
         if not player.playlist.entries and not player.current_entry and \
                 self.config.auto_playlist:
             while self.autoplaylist:
