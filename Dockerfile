@@ -1,5 +1,7 @@
 FROM alpine:edge
 
+MAINTAINER TBK <tbk@jjtc.eu>
+
 # Install Dependencies
 RUN apk add --update \
 && apk add --no-cache python3 python3-dev git ffmpeg opus libffi-dev libsodium-dev musl-dev gcc make \
