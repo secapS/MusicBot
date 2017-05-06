@@ -300,7 +300,7 @@ class Player(EventEmitter, Serializable):
             except OSError:
                 pass
             
-            self._previous_entry = self._current_player
+            self._previous_entry = self._current_entry
             self._current_player = None
 
             return True
