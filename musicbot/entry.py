@@ -179,6 +179,10 @@ class URLPlaylistEntry(BasePlaylistEntry):
             if not os.path.exists(self.download_folder):
                 os.makedirs(self.download_folder)
 
+            if self.expected_filename is None:
+                LOG.debug("Entry: Something is wrong - self.expected_filename is None!")
+                raise Exception
+
             # self.expected_filename:
             # audio_cache\youtube-9R8aSKwTEMg-NOMA_-_Brain_Power.m4a
             extractor = os.path.basename(self.expected_filename).split('-')[0]
