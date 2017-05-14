@@ -2,20 +2,22 @@ FROM alpine:edge
 
 MAINTAINER TBK <tbk@jjtc.eu>
 
-# Install Dependencies
-RUN apk add --update \
-&& apk add --no-cache python3 python3-dev git ffmpeg opus libffi-dev libsodium-dev musl-dev gcc make \
-&& cd /srv/ \
-&& pip3 install --no-cache-dir --upgrade --force-reinstall pip
-
 # Add project source
 WORKDIR /usr/src/musicbot
 COPY . /usr/src/musicbot
 
+# Install Dependencies
+RUN apk add --update \
+&& apk add --no-cache python3 ffmpeg opus ca-certificates \
+&& apk add --no-cache --virtual .build-deps git python3-dev libffi-dev libsodium-dev musl-dev gcc make \
+\
+# Install pip dependencies
+&& pip3 install --no-cache-dir -r requirements.txt \
+\
+# Clean up build dependencies
+&& apk del .build-deps
+
 # Create volume for mapping the config
 VOLUME /usr/src/musicbot/config
-
-# Install pip dependencies
-RUN pip3 install --no-cache-dir -r requirements.txt
 
 ENTRYPOINT ["python3", "run.py"]
