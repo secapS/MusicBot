@@ -142,7 +142,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
             url = data['url']
             title = data['title']
             duration = data['duration']
-            start_seconds = data["start_seconds"]
+            start_seconds = data['start_seconds']
             downloaded = data['downloaded']
             filename = data['filename'] if downloaded else None
             expected_filename = data['expected_filename'] \

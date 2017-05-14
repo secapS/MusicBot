@@ -17,17 +17,6 @@ except ImportError:
     pass
 
 
-class GIT(object):
-    """ TODO """
-    @classmethod
-    def works(cls):
-        """ TODO """
-        try:
-            return bool(subprocess.check_output('git --version', shell=True))
-        except:
-            return False
-
-
 class PIP(object):
     """ TODO """
     @classmethod
@@ -435,7 +424,7 @@ def main():
             if hasattr(error, '__module__') and \
                     error.__module__ == 'musicbot.exceptions':
                 if error.__class__.__name__ == 'HelpfulError':
-                    LOG.info(e.messages)
+                    LOG.info(error.args[0])
                     break
 
                 elif error.__class__.__name__ == "TerminateSignal":

@@ -188,8 +188,8 @@ class Playlist(EventEmitter, Serializable):
                     raise ExtractionError("Unknown error: {}".format(error))
 
             except Exception as error:
-                LOG.error("""Could not extract information from %s (%s),
-                falling back to direct""", (song_url, error), exc_info=True)
+                LOG.error("Could not extract information from %s (%s), falling back to direct" \
+                          % (song_url, error), exc_info=True)
 
         dest_url = song_url
         if info.get('extractor'):

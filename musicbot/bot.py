@@ -369,7 +369,7 @@ class MusicBot(discord.Client):
     async def add_to_autoplaylist(self,
                                   song_url: str,
                                   *,
-                                  ex: Exception=None,
+                                  ex: Exception = None,
                                   write_to_apl=False):
         """ TODO """
         if song_url in self.autoplaylist:
@@ -403,7 +403,7 @@ class MusicBot(discord.Client):
     async def remove_from_autoplaylist(self,
                                        song_url: str,
                                        *,
-                                       ex: Exception=None,
+                                       ex: Exception = None,
                                        write_to_apl=False):
         """ TODO """
         if song_url not in self.autoplaylist:
@@ -598,7 +598,7 @@ class MusicBot(discord.Client):
 
             LOG.voicedebug("(%s) Disconnecting",
                            self.reconnect_voice_client.__name__)
-            
+
             # TODO if self.is_voice_connected(server):
 
             try:
@@ -606,7 +606,7 @@ class MusicBot(discord.Client):
             except:
                 # pass
                 raise discord.ClientException(
-                "Could not disconnect from voice channel on server: %s#%s".format(server.id, server.name))
+                    "Could not disconnect from voice channel on server: {}#{}".format(server.id, server.name))
 
             if sleep:
                 LOG.voicedebug("(%s) Sleeping for %s",
