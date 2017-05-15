@@ -1006,6 +1006,9 @@ class MusicBot(discord.Client):
 
             with open(dir, 'r', encoding='utf8') as file_:
                 data = file_.read()
+            
+            if self.config.save_videos is False:
+                 data = re.sub('"downloaded": true,', '"downloaded": false,', data)
 
         return Player.from_json(data, self, voice_client, playlist)
 

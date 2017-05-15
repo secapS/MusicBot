@@ -113,7 +113,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
 
     def __json__(self):
         return self._enclose_json({
-            'version': 1,
+            'version': 2,
             'url': self.url,
             'title': self.title,
             'duration': self.duration,
@@ -121,8 +121,6 @@ class URLPlaylistEntry(BasePlaylistEntry):
             'downloaded': self.is_downloaded,
             'expected_filename': self.expected_filename,
             'filename': self.filename,
-            'full_filename': os.path.abspath(self.filename)
-                             if self.filename else self.filename,
             'filename_thumbnail': self.filename_thumbnail,
             'meta': {
                 name: {
@@ -166,7 +164,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
 
             return entry
         except Exception as error:
-            LOG.error("Could not load %s", cls.__name__, exc_info=error)
+            LOG.error('Could not load %s', cls.__name__, exc_info=error)
 
     # noinspection PyTypeChecker
     async def _download(self):
@@ -179,82 +177,87 @@ class URLPlaylistEntry(BasePlaylistEntry):
             if not os.path.exists(self.download_folder):
                 os.makedirs(self.download_folder)
 
-            if self.expected_filename is None:
-                LOG.debug("Entry: Something is wrong - self.expected_filename is None!")
-                raise Exception
+            if self.expected_filename:
+                # self.expected_filename:
+                # audio_cache\youtube-9R8aSKwTEMg-NOMA_-_Brain_Power.m4a
+                extractor = os.path.basename(self.expected_filename).split('-')[0]
+                # if os.name == 'nt':
+                #     extractor = (self.expected_filename.split('-')[0]).rsplit('\\', 1)[-1]
+                # else:
+                #     extractor = (self.expected_filename.split('-')[0]).rsplit('/', 1)[-1]
 
-            # self.expected_filename:
-            # audio_cache\youtube-9R8aSKwTEMg-NOMA_-_Brain_Power.m4a
-            extractor = os.path.basename(self.expected_filename).split('-')[0]
+                # the generic extractor requires special handling
+                if extractor == 'generic':
+                    LOG.debug('Handling generic')
+                    # remove thumbnail images from list
+                    img_pattern = re.compile(
+                        r'(\.(jpg|jpeg|png|gif|bmp))$', flags=re.IGNORECASE)
+                    flistdir = [f.rsplit('-', 1)[0] for f in
+                                os.listdir(self.download_folder)
+                                if not img_pattern.search(f)]
+                    expected_fname_noex = os.path.basename(
+                        self.expected_filename).rsplit('.', 1)
 
-            # the generic extractor requires special handling
-            if extractor == 'generic':
-                LOG.debug("Handling generic")
-                # remove thumbnail images from list
-                img_pattern = re.compile(
-                    r'(\.(jpg|jpeg|png|gif|bmp))$', flags=re.IGNORECASE)
-                flistdir = [f.rsplit('-', 1)[0] for f in
-                            os.listdir(self.download_folder)
-                            if not img_pattern.search(f)]
-                expected_fname_noex = os.path.basename(
-                    self.expected_filename).rsplit('.', 1)
+                    if expected_fname_noex in flistdir:
+                        try:
+                            rsize = int(await get_header(
+                                self.playlist.bot.aiosession,
+                                self.url, 'CONTENT-LENGTH'))
+                        except:
+                            rsize = 0
 
-                if expected_fname_noex in flistdir:
-                    try:
-                        rsize = int(await get_header(
-                            self.playlist.bot.aiosession,
-                            self.url, 'CONTENT-LENGTH'))
-                    except:
-                        rsize = 0
+                        lfile = os.path.join(
+                            self.download_folder,
+                            os.listdir(self.download_folder)[
+                                flistdir.index(expected_fname_noex)]
+                        )
 
-                    lfile = os.path.join(
-                        self.download_folder,
-                        os.listdir(self.download_folder)[
-                            flistdir.index(expected_fname_noex)]
-                    )
+                        LOG.debug('Resolved %s to %s', self.expected_filename, lfile)
+                        lsize = os.path.getsize(lfile)
+                        LOG.debug('Remote size: %s Local size: %s', rsize, lsize)
 
-                    LOG.debug("Resolved %s to %s", self.expected_filename, lfile)
-                    lsize = os.path.getsize(lfile)
-                    LOG.debug("Remote size: %s Local size: %s", rsize, lsize)
+                        if lsize != rsize:
+                            await self._really_download(hash=True)
+                        else:
+                            LOG.debug('[Download] Cached: %s', self.url)
+                            self.filename = lfile
 
-                    if lsize != rsize:
-                        await self._really_download(hash=True)
                     else:
-                        LOG.debug("[Download] Cached: %s", self.url)
-                        self.filename = lfile
+                        LOG.debug('File not found in cache (%s)', expected_fname_noex)
+                        await self._really_download(hash=True)
 
                 else:
-                    LOG.debug("File not found in cache (%s)", expected_fname_noex)
-                    await self._really_download(hash=True)
+                    img_pattern = re.compile(
+                        r'(\.(jpg|jpeg|png|gif|bmp))$', flags=re.IGNORECASE)
+                    ldir = [f for f in os.listdir(
+                        self.download_folder) if not img_pattern.search(f)]
+                    flistdir = [f.rsplit('.', 1)[0] for f in ldir]
+                    expected_fname_base = os.path.basename(self.expected_filename)
+                    expected_fname_noex = expected_fname_base.rsplit('.', 1)[0]
 
+                    # idk wtf this is but its probably legacy code
+                    # or i have youtube to blame for changing shit again
+                    if expected_fname_base in ldir:
+                        self.filename = os.path.join(
+                            self.download_folder, expected_fname_base)
+                        LOG.info('Download cached: %s', self.url)
+
+                    elif expected_fname_noex in flistdir:
+                        LOG.info(
+                            'Download cached (different extension): %s', self.url)
+                        self.filename = os.path.join(
+                            self.download_folder,
+                            ldir[flistdir.index(expected_fname_noex)])
+                        LOG.debug('Expected %s, got %s',
+                                  self.expected_filename.rsplit('.', 1)[-1],
+                                  self.filename.rsplit('.', 1)[-1]
+                                 )
+                    else:
+                        await self._really_download()
             else:
-                img_pattern = re.compile(
-                    r'(\.(jpg|jpeg|png|gif|bmp))$', flags=re.IGNORECASE)
-                ldir = [f for f in os.listdir(
-                    self.download_folder) if not img_pattern.search(f)]
-                flistdir = [f.rsplit('.', 1)[0] for f in ldir]
-                expected_fname_base = os.path.basename(self.expected_filename)
-                expected_fname_noex = expected_fname_base.rsplit('.', 1)[0]
-
-                # idk wtf this is but its probably legacy code
-                # or i have youtube to blame for changing shit again
-                if expected_fname_base in ldir:
-                    self.filename = os.path.join(
-                        self.download_folder, expected_fname_base)
-                    LOG.info("Download cached: %s", self.url)
-
-                elif expected_fname_noex in flistdir:
-                    LOG.info(
-                        "Download cached (different extension): %s", self.url)
-                    self.filename = os.path.join(
-                        self.download_folder,
-                        ldir[flistdir.index(expected_fname_noex)])
-                    LOG.debug("Expected %s, got %s",
-                              self.expected_filename.rsplit('.', 1)[-1],
-                              self.filename.rsplit('.', 1)[-1]
-                             )
-                else:
-                    await self._really_download()
+                # For cases where Config - SaveVideos = no and the bot resumes after a restart.
+                LOG.debug('Config - SaveVideos = no: Downloading the song again!')
+                await self._really_download()
 
             # Trigger ready callbacks.
             self._for_each_future(lambda future: future.set_result(self))
@@ -288,9 +291,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
 
         # Search for file name with an image suffix
         img_pattern = re.compile(
-            self.filename.lstrip(self.download_folder + os.sep)
-            .rsplit('.', 1)[0] +
-            r'(\.(jpg|jpeg|png|gif|bmp))$', re.IGNORECASE)
+            r'(\.(jpg|jpeg|png|gif|bmp))$', flags=re.IGNORECASE)
         self.filename_thumbnail = next(
             os.path.join(self.download_folder, f)
             for f in os.listdir(self.download_folder) if img_pattern.search(f))
