@@ -988,8 +988,8 @@ class MusicBot(discord.Client):
                                 *,
                                 dir=None) -> Player:
         """
-        Deserialize a saved queue for a server into a Player.
-        If no queue is saved, returns None.
+            Deserialize a saved queue for a server into a Player.
+            If no queue is saved, returns None.
         """
 
         if playlist is None:

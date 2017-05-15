@@ -44,9 +44,9 @@ class BasePlaylistEntry(Serializable):
 
     def get_ready_future(self):
         """
-        Returns a future that will fire when the song is ready to be played.
-        The future will either fire with the result (being the entry)
-         or an exception as to why the song download failed.
+            Returns a future that will fire when the song is ready to be played.
+            The future will either fire with the result (being the entry)
+            or an exception as to why the song download failed.
         """
         future = asyncio.Future()
         if self.is_downloaded:
@@ -268,7 +268,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
 
     # noinspection PyShadowingBuiltins
     async def _really_download(self, *, hash=False):
-        LOG.info("Download started: %s", self.url)
+        LOG.info('Download started: %s', self.url)
 
         try:
             result = await self.playlist.downloader.extract_info(
@@ -276,11 +276,11 @@ class URLPlaylistEntry(BasePlaylistEntry):
         except Exception as error:
             raise ExtractionError(error)
 
-        LOG.info("Download complete: %s", self.url)
+        LOG.info('Download complete: %s', self.url)
 
         if result is None:
-            LOG.critical("YTDL has failed, everyone panic")
-            raise ExtractionError("ytdl broke and hell if I know why")
+            LOG.critical('YTDL has failed, everyone panic')
+            raise ExtractionError('ytdl broke and hell if I know why')
             # What the fuck do I do now?
 
         self.filename = unhashed_fname = \
@@ -375,7 +375,7 @@ class StreamPlaylistEntry(BasePlaylistEntry):
 
             return entry
         except Exception as error:
-            LOG.error("Could not load %s", cls.__name__, exc_info=error)
+            LOG.error('Could not load %s', cls.__name__, exc_info=error)
 
     # noinspection PyMethodOverriding
     async def _download(self, *, fallback=False):
