@@ -599,14 +599,13 @@ class MusicBot(discord.Client):
             LOG.voicedebug("(%s) Disconnecting",
                            self.reconnect_voice_client.__name__)
 
-            # TODO if self.is_voice_connected(server):
-
-            try:
-                await voice_client.disconnect()
-            except:
-                # pass
-                raise discord.ClientException(
-                    "Could not disconnect from voice channel on server: {}#{}".format(server.id, server.name))
+            if self.is_voice_connected(server):
+                try:
+                    await voice_client.disconnect()
+                except:
+                    # pass
+                    raise discord.ClientException(
+                        "Could not disconnect from voice channel on server: {}#{}".format(server.id, server.name))
 
             if sleep:
                 LOG.voicedebug("(%s) Sleeping for %s",
