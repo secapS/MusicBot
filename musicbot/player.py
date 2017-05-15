@@ -283,7 +283,9 @@ class Player(EventEmitter, Serializable):
                 LOG.debug(
                     "Skipping deletion of \"%s\", found song in queue",
                     entry.filename)
-
+            elif self.bot.config.show_thumbnails:
+                LOG.debug("Deleting file & thumbnail: %s", os.path.relpath(entry.filename))
+                asyncio.ensure_future(self._delete_file(entry.filename, entry.filename_thumbnail))
             else:
                 LOG.debug("Deleting file: %s", os.path.relpath(entry.filename))
                 asyncio.ensure_future(self._delete_file(entry.filename))
@@ -299,7 +301,7 @@ class Player(EventEmitter, Serializable):
                 self._current_player.stop()
             except OSError:
                 pass
-            
+
             self._previous_entry = self._current_entry
             self._current_player = None
 
@@ -307,11 +309,13 @@ class Player(EventEmitter, Serializable):
         else:
             return False
 
-    async def _delete_file(self, filename):
+    async def _delete_file(self, filename, thumbnail=None):
         """ TODO """
         for x in range(30):
             try:
                 os.unlink(filename)
+                if thumbnail is not None:
+                    os.unlink(thumbnail)
                 break
 
             except PermissionError as error:
