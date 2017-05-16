@@ -141,22 +141,22 @@ class Playlist(EventEmitter, Serializable):
 
     async def promote_entry(self, position=None):
         """
-            Changes a songs position in the playlist.
-            :param index: The index of the song to remove from the queue.
+        Changes a songs position in the playlist.
+        :param index: The index of the song to remove from the queue.
         """
-        if not position:
-            entry = self.entries.pop()
-            self.entries.appendleft(entry)
-            self.emit('entry-added', playlist=self, entry=entry)
-            entry.get_ready_future()
-        else:
+        if position:
             rot_dist = -1 * (position - 1)
             self.entries.rotate(rot_dist)
             entry = self.entries.popleft()
             self.entries.rotate(-1 * rot_dist)
-            self.entries.appendleft(entry)
-            self.emit('entry-added', playlist=self, entry=entry)
-            entry.get_ready_future()
+
+        else:
+            entry = self.entries.pop()
+
+        self.entries.appendleft(entry)
+        self.emit('entry-added', playlist=self, entry=entry)
+        entry.get_ready_future()
+
         return entry
 
     async def add_stream_entry(self, song_url, info=None, **meta):

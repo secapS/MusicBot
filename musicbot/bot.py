@@ -752,7 +752,7 @@ class MusicBot(discord.Client):
             if self.server_data[channel.server]['last_np_msg']:
                 self.server_data[channel.server]['last_np_msg'] = \
                     await self.safe_edit_message(
-                        last_np_msg,
+                        self.server_data[channel.server]['last_np_msg'],
                         newmsg,
                         fp=thumbnail,
                         send_if_fail=True)
@@ -3059,18 +3059,18 @@ class MusicBot(discord.Client):
 
         if player.is_stopped:
             raise exceptions.CommandError(
-                "Can't modify the queue! The player is not playing!",
+                'Can not modify the queue! The player is not playing!',
                 expire_in=20)
 
         length = len(player.playlist.entries)
 
         if length < 2:
             raise exceptions.CommandError(
-                "Can't promote! Please add at least 2 songs to the queue!",
+                'Can not promote! Please add at least 2 songs to the queue!',
                 expire_in=20)
 
         if not position:
-            entry = player.playlist.promote_entry()
+            entry = await player.playlist.promote_entry()
         else:
             try:
                 position = int(position)
@@ -3090,11 +3090,11 @@ class MusicBot(discord.Client):
                     number between 2 and %s!" % length,
                     expire_in=20)
 
-            entry = player.playlist.promote_entry(position)
+            entry = await player.playlist.promote_entry(position)
+
 
         reply_text = """Promoted **%s** to the :top: of the queue.\n
         Estimated time until playing: %s"""
-        btext = entry.title
 
         try:
             time_until = await player.playlist.estimate_time_until(1, player)
@@ -3102,7 +3102,7 @@ class MusicBot(discord.Client):
             traceback.print_exc()
             time_until = ''
 
-        reply_text %= (btext, time_until)
+        reply_text %= (entry.title, time_until)
 
         return Response(reply_text, delete_after=30)
 
