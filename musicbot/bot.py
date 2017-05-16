@@ -2190,7 +2190,7 @@ class MusicBot(discord.Client):
                 await self.safe_delete_message(confirm_message)
                 await self.safe_delete_message(response_message)
 
-        return Response("Oh well \n{SLIGHTLY FROWNING FACE}", delete_after=30)
+        return Response("Oh well \n:slight_frown:", delete_after=30)
 
     async def cmd_np(self, player, channel, server, message):
         """
