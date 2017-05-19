@@ -1,3 +1,4 @@
+# Runtime
 audio_cache/
 bin/
 data/
@@ -5,5 +6,6 @@ logs/
 musicbot/__pycache__/
 musicbot/lib/__pycache__/
 
+# IDE
 .idea/
 .vscode/
