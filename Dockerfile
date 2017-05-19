@@ -1,10 +1,10 @@
 FROM alpine:edge
 
-MAINTAINER TBK <tbk@jjtc.eu>
+LABEL maintainer "TBK <tbk@jjtc.eu>"
 
 # Add project source
 WORKDIR /usr/src/musicbot
-COPY . /usr/src/musicbot
+COPY . .
 
 # Install Dependencies
 RUN apk add --update \
