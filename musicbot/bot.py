@@ -891,30 +891,31 @@ class MusicBot(discord.Client):
 
     async def update_now_playing_status(self, entry=None, is_paused=False):
         """ TODO """
-        game = None
+        if self.config.now_playing_status:
+            game = None
 
-        if self.user.bot:
-            activeplayers = sum(
-                1 for p in self.players.values() if p.is_playing)
-            if activeplayers > 1:
-                game = discord.Game(name="music on %s servers" % activeplayers)
-                entry = None
+            if self.user.bot:
+                activeplayers = sum(
+                    1 for p in self.players.values() if p.is_playing)
+                if activeplayers > 1:
+                    game = discord.Game(name="music on %s servers" % activeplayers)
+                    entry = None
 
-            elif activeplayers == 1:
-                player = discord.utils.get(
-                    self.players.values(), is_playing=True)
-                entry = player.current_entry
+                elif activeplayers == 1:
+                    player = discord.utils.get(
+                        self.players.values(), is_playing=True)
+                    entry = player.current_entry
 
-        if entry:
-            prefix = u'\u275A\u275A ' if is_paused else ''
+            if entry:
+                prefix = u'\u275A\u275A ' if is_paused else ''
 
-            name = u'{}{}'.format(prefix, entry.title)[:128]
-            game = discord.Game(name=name)
+                name = u'{}{}'.format(prefix, entry.title)[:128]
+                game = discord.Game(name=name)
 
-        async with self.aiolocks[self.update_now_playing_status.__name__]:
-            if game != self.last_status:
-                await self.change_presence(game=game)
-                self.last_status = game
+            async with self.aiolocks[self.update_now_playing_status.__name__]:
+                if game != self.last_status:
+                    await self.change_presence(game=game)
+                    self.last_status = game
 
     async def update_now_playing_message(self,
                                          server,

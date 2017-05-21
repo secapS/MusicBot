@@ -71,6 +71,9 @@ class Config:
         self.now_playing_mentions = config.getboolean(
             'MusicBot', 'NowPlayingMentions',
             fallback=ConfigDefaults.now_playing_mentions)
+        self.now_playing_status = config.getboolean(
+            'MusicBot', 'NowPlayingStatus',
+            fallback=ConfigDefaults.now_playing_status)
         self.auto_summon = config.getboolean(
             'MusicBot', 'AutoSummon',
             fallback=ConfigDefaults.auto_summon)
@@ -327,6 +330,7 @@ class ConfigDefaults:
     save_videos = True
     show_thumbnails = True
     now_playing_mentions = False
+    now_playing_status = True
     auto_summon = True
     auto_playlist = True
     auto_pause = True
