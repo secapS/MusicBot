@@ -1183,8 +1183,6 @@ class MusicBot(discord.Client):
     async def edit_profile(self, **fields):
         if self.user.bot:
             return await super().edit_profile(**fields)
-        else:
-            return await super().edit_profile(self.config._password, **fields)
 
     async def restart(self):
         """ TODO """
@@ -1222,8 +1220,7 @@ class MusicBot(discord.Client):
                 "Bot cannot login, bad credentials.",
                 "Fix your %s in the config.ini file.  "
                 "Remember that each field should be on their own line."
-                % ['shit', 'Token', 'Email/Password',
-                   'Credentials'][len(self.config.auth)]
+                % ['Token', 'Credentials'][len(self.config.auth)]
             )  # ^^^^ In theory self.config.auth should never have no items
 
         finally:

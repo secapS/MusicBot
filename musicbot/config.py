@@ -37,10 +37,6 @@ class Config:
 
         self._login_token = config.get(
             'Credentials', 'Token', fallback=ConfigDefaults.token)
-        self._email = config.get(
-            'Credentials', 'Email', fallback=ConfigDefaults.email)
-        self._password = config.get(
-            'Credentials', 'Password', fallback=ConfigDefaults.password)
         self.auth = ()
         self.owner_id = config.get(
             'Permissions', 'OwnerID', fallback=ConfigDefaults.owner_id)
@@ -115,32 +111,11 @@ class Config:
         """
         Validation logic for bot settings.
         """
-
-        if self._email or self._password:
-            if not self._email:
-                raise HelpfulError(
-                    "The login email was not specified in the config.",
-
-                    "Please put your bot account credentials in the config.  "
-                    "Remember that the Email is the email address used to \
-                    register the bot account.",
-                    preface=self._confpreface)
-
-            if not self._password:
-                raise HelpfulError(
-                    "The password was not specified in the config.",
-
-                    "Please put your bot account credentials in the config.",
-                    preface=self._confpreface)
-
-            self.auth = (self._email, self._password)
-
-        elif not self._login_token:
+        if not self._login_token:
             raise HelpfulError(
                 "No login credentials were specified in the config.",
 
-                "Please fill in either the Email and Password fields, or "
-                "the Token field.  The Token field is for Bot accounts only.",
+                "Please fill in the Token field.",
                 preface=self._confpreface
             )
 
@@ -339,8 +314,6 @@ class Config:
 class ConfigDefaults:
     """ TODO """
     token = None
-    email = None
-    password = None
     owner_id = None
     dev_ids = set()
     command_prefix = '!'
