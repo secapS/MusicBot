@@ -7,9 +7,20 @@ WORKDIR /usr/src/musicbot
 COPY . .
 
 # Install Dependencies
-RUN apk add --update \
-&& apk add --no-cache python3 ffmpeg opus ca-certificates \
-&& apk add --no-cache --virtual .build-deps git python3-dev libffi-dev libsodium-dev musl-dev gcc make \
+RUN apk update \
+&& apk add --no-cache
+  ca-certificates \
+  ffmpeg \
+  opus \
+  python3 \
+&& apk add --no-cache --virtual .build-deps
+  gcc \
+  git \
+  ibffi-dev \
+  llibsodium-dev \
+  make \
+  musl-dev \
+  python3-dev \
 \
 # Install pip dependencies
 && pip3 install --no-cache-dir -r requirements.txt && pip3 install --upgrade --force-reinstall https://github.com/DiscordMusicBot/websockets/archive/deploy.zip \
