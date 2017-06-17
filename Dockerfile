@@ -18,7 +18,7 @@ RUN apk update \
 && apk add --no-cache --virtual .build-deps \
   gcc \
   git \
-  ibffi-dev \
+  libffi-dev \
   llibsodium-dev \
   make \
   musl-dev \
