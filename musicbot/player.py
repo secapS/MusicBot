@@ -284,7 +284,10 @@ class Player(EventEmitter, Serializable):
                     "Skipping deletion of \"%s\", found song in queue",
                     entry.filename)
             elif self.bot.config.show_thumbnails:
-                LOG.debug("Deleting song & thumbnail file: %s", os.path.relpath(entry.filename))
+                LOG.debug("Deleting song & thumbnail file: \n%s\n%s",
+                          os.path.relpath(entry.filename),
+                          os.path.relpath(entry.filename_thumbnail)
+                         )
                 asyncio.ensure_future(self._delete_file(entry.filename, entry.filename_thumbnail))
             else:
                 LOG.debug("Deleting song file: %s", os.path.relpath(entry.filename))
