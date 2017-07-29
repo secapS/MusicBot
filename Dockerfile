@@ -19,7 +19,7 @@ RUN apk update \
   gcc \
   git \
   libffi-dev \
-  llibsodium-dev \
+  libsodium-dev \
   make \
   musl-dev \
   python3-dev \
