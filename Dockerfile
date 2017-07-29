@@ -26,7 +26,7 @@ RUN apk update \
 \
 # Install pip dependencies
 && pip3 install --no-cache-dir -r requirements.txt \
-&& pip3 install --upgrade --force-reinstall https://github.com/DiscordMusicBot/websockets/archive/deploy.zip \
+&& pip3 install --upgrade --force-reinstall https://github.com/aaugustin/websockets/archive/master.zip \
 \
 # Clean up build dependencies
 && apk del .build-deps
