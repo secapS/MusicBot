@@ -60,7 +60,7 @@ class PermissionsError(CommandError):
     """ TODO """
     @property
     def message(self):
-        return "You don't have permission to use that command.\nReason: "+ self._message
+        return "You don't have permission to use that command.\nReason: " + self._message
 
 
 # Error with pretty formatting for hand-holding users through various errors
