@@ -271,7 +271,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
 
     # noinspection PyShadowingBuiltins
     async def _really_download(self, *, hash=False):
-        LOG.info('Download started: %s', self.url)
+        LOG.info("Download started: '%s' \[%s\]" % (self.title, self.url))
 
         try:
             result = await self.playlist.downloader.extract_info(
@@ -279,7 +279,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
         except Exception as error:
             raise ExtractionError(error)
 
-        LOG.info('Download complete: %s', self.url)
+        LOG.info("Download complete: '%s' \[%s\]" % (self.title, self.url))
 
         if result is None:
             LOG.critical('YTDL has failed, everyone panic')
