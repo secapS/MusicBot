@@ -1629,7 +1629,19 @@ class MusicBot(discord.Client):
 
         for s in self.servers:
             await self.safe_send_message(s, args)
+    async def cmd_undo(self, player):
+        """
+        Usage:
+            {command_prefix}undo
 
+        Removes the last song added to the queue.
+        """
+        try:
+            song = player.playlist.undo()
+        except IndexError:
+            return Response("There are no songs to remove.", delete_after=30)
+        return Response("Removed **{}**".format(song.title), delete_after=30)
+    
     async def cmd_play(self, player, channel, author, permissions,
                        leftover_args, song_url):
         """

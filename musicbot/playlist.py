@@ -45,6 +45,9 @@ class Playlist(EventEmitter, Serializable):
         """ TODO """
         self.entries.clear()
 
+    def undo(self):
+        return self.entries.pop()
+
     async def add_entry(self, song_url, **meta):
         """
         Validates and adds a song_url to be played.
